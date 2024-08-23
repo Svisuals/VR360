@@ -19,13 +19,11 @@
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
         }
         #aframe-scene {
-            width: 100%;
-            height: calc(100% - 40px); /* Reduce la altura para hacer espacio para el botón */
             position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
@@ -65,46 +63,54 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .split-left, .split-right {
-            position: absolute;
-            top: 0;
-            bottom: 0;
+        .split-container {
+            display: flex;
+            flex-direction: row;
             height: 100%;
-            background-color: transparent;
+            width: 100%;
         }
-        .split-left {
-            width: 50%;
-            left: 0;
+        .split-container.vertical {
+            flex-direction: column;
         }
-        .split-right {
-            width: 50%;
-            right: 0;
+        .split {
+            flex: 1;
+            overflow: hidden;
         }
-        .full-view {
+        .split img {
             width: 100%;
             height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
     <div id="scene-container">
-        <a-scene id="aframe-scene">
-            <!-- Cámara con controles táctiles -->
-            <a-camera id="camera"
-                position="0 1.6 0"
-                touch-controls
-                look-controls>
-            </a-camera>
-
-            <!-- Imágenes 360° -->
-            <a-sky id="imagen360-left" class="full-view" src="images/image1.JPG"></a-sky>
-            <a-sky id="imagen360-right" class="full-view" src="images/image2.JPG"></a-sky>
-
-            <a-assets>
-                <!-- Las imágenes se cargarán dinámicamente -->
-            </a-assets>
-        </a-scene>
+        <div id="aframe-scene">
+            <div id="canvas-container" class="split-container">
+                <!-- Divisiones de imágenes -->
+                <div id="split-left" class="split">
+                    <a-scene>
+                        <a-camera id="camera"
+                            position="0 1.6 0"
+                            touch-controls
+                            look-controls>
+                        </a-camera>
+                        <a-sky id="imagen360-left" src="images/image1.JPG"></a-sky>
+                    </a-scene>
+                </div>
+                <div id="split-right" class="split" style="display: none;">
+                    <a-scene>
+                        <a-camera id="camera-right"
+                            position="0 1.6 0"
+                            touch-controls
+                            look-controls>
+                        </a-camera>
+                        <a-sky id="imagen360-right" src="images/image2.JPG"></a-sky>
+                    </a-scene>
+                </div>
+            </div>
+        </div>
         <button id="toggle-btn">Dividir</button>
     </div>
 
@@ -199,17 +205,19 @@
 
             toggleBtn.addEventListener('click', () => {
                 split = !split;
+                const leftContainer = document.getElementById('split-left');
+                const rightContainer = document.getElementById('split-right');
+                const container = document.getElementById('canvas-container');
+
                 if (split) {
-                    document.querySelector('#aframe-scene').style.display = 'flex';
-                    document.querySelector('#imagen360-left').style.width = '50%';
-                    document.querySelector('#imagen360-right').style.width = '50%';
-                    document.querySelector('#imagen360-left').style.float = 'left';
-                    document.querySelector('#imagen360-right').style.float = 'right';
+                    container.classList.add('vertical');
+                    leftContainer.style.display = 'block';
+                    rightContainer.style.display = 'block';
                     toggleBtn.textContent = 'Unir';
                 } else {
-                    document.querySelector('#aframe-scene').style.display = 'block';
-                    document.querySelector('#imagen360-left').style.width = '100%';
-                    document.querySelector('#imagen360-right').style.display = 'none';
+                    container.classList.remove('vertical');
+                    leftContainer.style.display = 'block';
+                    rightContainer.style.display = 'none';
                     toggleBtn.textContent = 'Dividir';
                 }
             });
@@ -219,13 +227,9 @@
         window.addEventListener('resize', () => {
             const sceneEl = document.querySelector('#aframe-scene');
             if (window.innerWidth < 768) {
-                sceneEl.style.flexDirection = 'column';
-                document.querySelector('#imagen360-left').style.width = '100%';
-                document.querySelector('#imagen360-right').style.width = '100%';
+                document.querySelector('#canvas-container').classList.add('vertical');
             } else {
-                sceneEl.style.flexDirection = 'row';
-                document.querySelector('#imagen360-left').style.width = '50%';
-                document.querySelector('#imagen360-right').style.width = '50%';
+                document.querySelector('#canvas-container').classList.remove('vertical');
             }
         });
     </script>
