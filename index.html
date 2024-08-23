@@ -19,6 +19,25 @@
             width: 100%;
             height: 100%;
         }
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -32,12 +51,16 @@
         </a-camera>
 
         <!-- Imagen 360° -->
-        <a-sky id="imagen360" src="360.JPG"></a-sky>
+        <a-sky id="imagen360" src="images/image1.JPG"></a-sky>
 
         <a-assets>
-            <img id="imagen360" src="360.JPG">
+            <!-- Las imágenes se cargarán dinámicamente -->
         </a-assets>
     </a-scene>
+
+    <div id="controls">
+        <div id="image-buttons"></div>
+    </div>
 
     <script>
         AFRAME.registerComponent('zoom-controls', {
@@ -71,6 +94,28 @@
 
         // Añadir el componente a la cámara
         document.querySelector('a-camera').setAttribute('zoom-controls', '');
+
+        // JavaScript para manejar múltiples imágenes
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = [
+                'image1.JPG',
+                'image2.JPG',
+                'image3.JPG'
+            ];
+
+            const controlsDiv = document.getElementById('image-buttons');
+
+            images.forEach(image => {
+                const button = document.createElement('button');
+                button.textContent = image;
+                button.onclick = () => cambiarImagen360(image);
+                controlsDiv.appendChild(button);
+            });
+
+            function cambiarImagen360(nombreImagen) {
+                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
+            }
+        });
     </script>
 
 </body>
