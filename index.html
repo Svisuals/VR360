@@ -10,132 +10,88 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
 
         #container {
             display: flex;
             width: 100%;
             height: 100%;
-            position: relative;
-            flex-direction: row; /* Por padrão, dividir horizontalmente */
         }
 
         canvas {
-            width: 100%;
+            width: 50%;
             height: 100%;
             border: none;
             background: #f0f0f0; /* Cor de fundo para canvas */
         }
 
-        #canvas2 {
-            display: none;
-        }
-
-        #canvas3 {
-            display: none;
-            width: 50%; /* Tamanho inicial do terceiro canvas */
-            height: 100%;
-            position: absolute;
-            top: 0;
-            right: 0;
-            border: 1px solid #ccc;
-            z-index: 999;
-        }
-
-        #toggleButton {
+        #syncToggle {
             position: fixed;
-            top: 0;
-            left: calc(50% + 4cm); /* Começa 4 cm à direita */
-            width: 32px; /* Largura do logo DUP */
-            height: 32px; /* Altura do logo DUP */
-            background: url('DUP.jpg') no-repeat center center;
-            background-size: cover;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: none;
             border: none;
             cursor: pointer;
-            z-index: 1000;
+            z-index: 1000; /* Garantir que o botão esteja visível sobre outros elementos */
         }
 
-        #toggleCanvas3Button {
-            position: absolute;
-            top: 2cm; /* Ajustado conforme solicitado */
-            left: 1cm; /* Ajustado conforme solicitado */
+        #syncToggle img {
             width: 32px;
             height: 32px;
-            background: url('CRO.jpg') no-repeat center center;
-            background-size: cover;
-            border: none;
-            cursor: pointer;
-            z-index: 1000;
-            display: none; /* Por padrão, o terceiro canvas está escondido */
-        }
-
-        @media (max-width: 768px) {
-            #toggleButton {
-                display: none; /* Oculta o toggleButton em dispositivos móveis */
-            }
-
-            #toggleCanvas3Button {
-                display: none; /* Oculta o toggleCanvas3Button em dispositivos móveis */
-            }
-
-            #container {
-                flex-direction: column; /* Altera para coluna em dispositivos móveis */
-            }
-
-            canvas {
-                width: 100%;
-                height: 50%;
-            }
-
-            #canvas2 {
-                display: block;
-            }
-
-            #canvas3 {
-                display: none;
-            }
-        }
-
-        /* Nova regra para dividir horizontalmente quando o terceiro canvas está visível */
-        @media (min-width: 769px) {
-            #container.horizontal-split {
-                flex-direction: row;
-            }
-
-            #canvas1 {
-                width: 100%; /* Ocupa toda a largura por padrão */
-            }
-
-            #canvas3 {
-                display: block;
-                width: 50%; /* Terceiro canvas ocupa metade da largura */
-                height: 100%; /* Altura de 100% para o terceiro canvas */
-            }
         }
     </style>
 </head>
 <body>
-    <div id="container" class="horizontal-split">
+    <div id="container">
         <canvas id="canvas1"></canvas>
         <canvas id="canvas2"></canvas>
-        <canvas id="canvas3"></canvas>
     </div>
-    <button id="toggleButton"></button>
-    <button id="toggleCanvas3Button"></button>
+    <button id="syncToggle">
+        <img id="lockIcon" src="locked.png" alt="Toggle Sync">
+    </button>
 
     <script>
-        document.getElementById('toggleButton').addEventListener('click', function() {
-            var container = document.getElementById('container');
-            container.classList.toggle('horizontal-split');
-            document.getElementById('canvas2').style.display = container.classList.contains('horizontal-split') ? 'none' : 'block';
-            document.getElementById('canvas1').style.width = container.classList.contains('horizontal-split') ? '50%' : '100%';
-        });
+        // Obtendo referências aos elementos
+        const canvas1 = document.getElementById('canvas1');
+        const canvas2 = document.getElementById('canvas2');
+        const syncToggle = document.getElementById('syncToggle');
+        const lockIcon = document.getElementById('lockIcon');
+        let syncScroll = true;
 
-        document.getElementById('toggleCanvas3Button').addEventListener('click', function() {
-            var canvas3 = document.getElementById('canvas3');
-            canvas3.style.display = canvas3.style.display === 'none' ? 'block' : 'none';
+        // Função para desenhar algo básico nos canvas
+        function drawOnCanvas(ctx) {
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(10, 10, 100, 100);
+        }
+
+        // Configura os contextos dos canvas
+        const ctx1 = canvas1.getContext('2d');
+        const ctx2 = canvas2.getContext('2d');
+
+        // Desenha nos canvas
+        drawOnCanvas(ctx1);
+        drawOnCanvas(ctx2);
+
+        // Função para sincronizar o conteúdo dos canvas
+        function syncCanvas() {
+            if (!syncScroll) return;
+
+            // Aqui você pode implementar a lógica para sincronizar o conteúdo dos canvas
+            // Por exemplo, desenhar no canvas2 o mesmo conteúdo que canvas1
+            ctx2.clearRect(0, 0, canvas2.width, canvas2.height); // Limpar canvas2
+            ctx2.drawImage(canvas1, 0, 0); // Desenhar o conteúdo de canvas1 em canvas2
+        }
+
+        // Chama a função de sincronização quando o conteúdo dos canvas muda
+        canvas1.addEventListener('mouseup', syncCanvas); // Evento para detectar mudanças
+        canvas2.addEventListener('mouseup', syncCanvas); // Evento para detectar mudanças
+
+        // Alternar sincronização
+        syncToggle.addEventListener('click', () => {
+            syncScroll = !syncScroll;
+            lockIcon.src = syncScroll ? 'locked.png' : 'unlocked.png';
+            syncCanvas(); // Sincroniza o conteúdo quando a sincronização é ativada
         });
     </script>
 </body>
