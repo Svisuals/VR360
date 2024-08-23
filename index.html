@@ -49,7 +49,7 @@
     </div>
 
     <script>
-        // Configura o visualizador Panolens
+        // Inicializa o visualizador Panolens
         const container = document.getElementById('panolens-container');
         const viewer = new PANOLENS.Viewer({
             container: container
@@ -62,31 +62,7 @@
             viewer.setPanorama(panorama);
         }
 
-        // Configuração de zoom com Pinch
-        let fov = 75;
-        viewer.camera.position.set(0, 0, 0);
-        viewer.camera.fov = fov;
-        viewer.camera.updateProjectionMatrix();
-
-        // Ajusta o zoom com a roda do mouse
-        window.addEventListener('wheel', function(event) {
-            fov = Math.max(30, Math.min(90, fov - event.deltaY * 0.05));
-            viewer.camera.fov = fov;
-            viewer.camera.updateProjectionMatrix();
-        });
-
-        // Configuração do Pinch Zoom com Hammer.js
-        const canvas = viewer.renderer.domElement;
-        const hammer = new Hammer.Manager(canvas);
-        hammer.add(new Hammer.Pinch());
-
-        hammer.on('pinch', function(event) {
-            fov = Math.max(30, Math.min(90, fov / event.scale));
-            viewer.camera.fov = fov;
-            viewer.camera.updateProjectionMatrix();
-        });
-
-        // Manipulação de imagens
+        // Inicializa a imagem padrão
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
@@ -105,6 +81,26 @@
 
             // Carrega a primeira imagem por padrão
             cargarImagen360(images[0]);
+        });
+
+        // Ajuste de zoom com a roda do mouse
+        let fov = 75;
+        function ajustarZoom(event) {
+            fov = Math.max(30, Math.min(90, fov - event.deltaY * 0.05));
+            viewer.camera.fov = fov;
+            viewer.camera.updateProjectionMatrix();
+        }
+        window.addEventListener('wheel', ajustarZoom);
+
+        // Ajuste de zoom com Pinch usando Hammer.js
+        const canvas = viewer.renderer.domElement;
+        const hammer = new Hammer.Manager(canvas);
+        hammer.add(new Hammer.Pinch());
+
+        hammer.on('pinch', function(event) {
+            fov = Math.max(30, Math.min(90, fov / event.scale));
+            viewer.camera.fov = fov;
+            viewer.camera.updateProjectionMatrix();
         });
     </script>
 
