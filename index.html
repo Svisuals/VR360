@@ -49,15 +49,6 @@
                     this.cameraEl = this.el.sceneEl.camera.el;
                     this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
                     this.setupPinchZoom();
-                    // Agregar este código para permitir el movimiento en vertical con dispositivos móviles
-                    this.el.sceneEl.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                    });
-                    this.el.sceneEl.addEventListener('touchmove', (e) => {
-                        if (e.touches.length === 1 && e.target.classList.contains('a-scene')) {
-                            e.preventDefault();
-                        }
-                    });
                 },
                 onWheel: function (event) {
                     const cameraComponent = this.cameraEl.getAttribute('camera');
@@ -67,6 +58,8 @@
                 setupPinchZoom: function () {
                     const canvas = this.el.sceneEl.renderer.domElement;
                     const hammer = new Hammer(canvas);
+
+                    hammer.get('pinch').set({ enable: true });
 
                     hammer.on('pinch', (event) => {
                         const cameraComponent = this.cameraEl.getAttribute('camera');
