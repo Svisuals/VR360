@@ -15,6 +15,15 @@
             height: 100%;
             overflow: hidden;
         }
+        #scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        a-scene {
+            width: 100%;
+            height: 100%;
+        }
         #controls {
             position: fixed;
             top: 10px;
@@ -50,31 +59,45 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .image-panel {
+        .split-left {
             width: 50%;
             height: 100%;
             float: left;
+            background-color: transparent;
+        }
+        .split-right {
+            width: 50%;
+            height: 100%;
+            float: left;
+            background-color: transparent;
+        }
+        .full-view {
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
 
-    <a-scene id="scene">
-        <!-- Cámara con controles táctiles -->
-        <a-camera id="camera"
-            position="0 1.6 0"
-            touch-controls
-            look-controls>
-        </a-camera>
+    <div id="scene">
+        <a-scene id="aframe-scene">
+            <!-- Cámara con controles táctiles -->
+            <a-camera id="camera"
+                position="0 1.6 0"
+                touch-controls
+                look-controls>
+            </a-camera>
 
-        <!-- Imágenes 360° -->
-        <a-sky id="imagen360-left" src="images/image1.JPG" class="image-panel"></a-sky>
-        <a-sky id="imagen360-right" src="images/image2.JPG" class="image-panel"></a-sky>
+            <!-- Imágenes 360° -->
+            <a-sky id="imagen360-left" class="split-left" src="images/image1.JPG"></a-sky>
+            <a-sky id="imagen360-right" class="split-right" src="images/image2.JPG"></a-sky>
 
-        <a-assets>
-            <!-- Las imágenes se cargarán dinámicamente -->
-        </a-assets>
-    </a-scene>
+            <a-assets>
+                <!-- Las imágenes se cargarán dinámicamente -->
+            </a-assets>
+        </a-scene>
+        <button id="toggle-btn">Dividir</button>
+    </div>
 
     <div id="controls">
         <div id="compare-buttons">
@@ -86,8 +109,6 @@
             <h3>Seleccionar Imagen</h3>
         </div>
     </div>
-
-    <button id="toggle-btn">Dividir</button>
 
     <script>
         AFRAME.registerComponent('zoom-controls', {
@@ -168,37 +189,26 @@
             toggleBtn.addEventListener('click', () => {
                 split = !split;
                 if (split) {
-                    document.querySelector('#scene').setAttribute('split', '');
+                    document.querySelector('#imagen360-left').classList.add('split-left');
+                    document.querySelector('#imagen360-right').classList.add('split-right');
+                    document.querySelector('#aframe-scene').classList.remove('full-view');
                     toggleBtn.textContent = 'Unir';
                 } else {
-                    document.querySelector('#scene').removeAttribute('split');
+                    document.querySelector('#imagen360-left').classList.remove('split-left');
+                    document.querySelector('#imagen360-right').classList.remove('split-right');
+                    document.querySelector('#aframe-scene').classList.add('full-view');
                     toggleBtn.textContent = 'Dividir';
                 }
             });
         });
 
-        // Add the split component to handle canvas splitting
-        AFRAME.registerComponent('split', {
-            init: function () {
-                const sceneEl = this.el;
-                const isMobile = window.innerWidth < 768;
-                const canvas = sceneEl.renderer.domElement;
-
-                if (isMobile) {
-                    sceneEl.style.display = 'flex';
-                    sceneEl.style.flexDirection = 'column';
-                } else {
-                    sceneEl.style.display = 'flex';
-                    sceneEl.style.flexDirection = 'row';
-                }
-
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth < 768) {
-                        sceneEl.style.flexDirection = 'column';
-                    } else {
-                        sceneEl.style.flexDirection = 'row';
-                    }
-                });
+        // Adjust layout based on screen size
+        window.addEventListener('resize', () => {
+            const sceneEl = document.querySelector('#aframe-scene');
+            if (window.innerWidth < 768) {
+                sceneEl.classList.add('full-view');
+            } else {
+                sceneEl.classList.remove('full-view');
             }
         });
     </script>
