@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor 360° con Modo VR y Zoom</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -25,7 +26,7 @@
     <a-scene>
         <!-- Entidad de la cámara con controles habilitados -->
         <a-camera 
-            wasd-controls="enabled: true; fly: true"  <!-- Permite moverse en todas las direcciones -->
+            wasd-controls="enabled: true; fly: true"  <!-- Permite moverse en todas as direcciones -->
             look-controls="pointerLockEnabled: true"  <!-- Habilita el control de mirada -->
             mouse-cursor>
         </a-camera>
@@ -50,16 +51,25 @@
             init: function () {
                 this.cameraEl = this.el.sceneEl.camera.el;
                 this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-                this.el.sceneEl.addEventListener('touchmove', this.onTouchMove.bind(this));
+                this.setupTouchControls();
+            },
+            setupTouchControls: function () {
+                const canvas = this.el.sceneEl.renderer.canvas;
+                const hammer = new Hammer(canvas);
+                
+                hammer.get('pinch').set({ enable: true });
+                hammer.on('pinch', (event) => this.onPinch(event));
             },
             onWheel: function (event) {
                 const fov = this.cameraEl.getAttribute('camera').fov;
                 const newFov = Math.max(this.data.min, Math.min(this.data.max, fov - event.deltaY * 0.1));
                 this.cameraEl.setAttribute('camera', 'fov', newFov);
             },
-            onTouchMove: function (event) {
-                // Aquí puedes implementar el manejo de gestos táctiles para el zoom
-                // Este ejemplo no está implementado, pero te da una idea general
+            onPinch: function (event) {
+                const scale = event.scale;
+                const fov = this.cameraEl.getAttribute('camera').fov;
+                const newFov = Math.max(this.data.min, Math.min(this.data.max, fov / scale));
+                this.cameraEl.setAttribute('camera', 'fov', newFov);
             }
         });
 
