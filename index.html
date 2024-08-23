@@ -11,11 +11,6 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Evita las barras de desplazamiento en dispositivos móviles */
-        }
-        a-scene {
-            width: 100%;
-            height: 100%;
         }
     </style>
 </head>
@@ -23,21 +18,22 @@
 
     <!-- Contenedor de la escena A-Frame -->
     <a-scene>
-        <!-- Entidad de la cámara para permitir la navegación en 360° y VR -->
-        <a-camera wasd-controls-enabled="false" look-controls-enabled="true"></a-camera>
-        
+        <!-- Entidad de la cámara con controles habilitados -->
+        <a-camera 
+            wasd-controls="enabled: true; fly: true"  <!-- Permite moverse en todas las direcciones -->
+            look-controls="pointerLockEnabled: true"  <!-- Habilita el control de mirada -->
+            zoom="min: 0.5; max: 5"                   <!-- Habilita zoom con límites -->
+            mouse-cursor>                             <!-- Permite usar el cursor del mouse -->
+        </a-camera>
+
         <!-- Imagen 360° -->
         <a-sky src="#imagen360"></a-sky>
 
         <!-- Definir las imágenes 360° aquí -->
         <a-assets>
-            <!-- Cambia esta ruta a la ubicación de tu imagen -->
             <img id="imagen360" src="360.JPG">
         </a-assets>
 
-        <!-- Activar el botón VR en dispositivos móviles -->
-        <a-entity oculus-touch-controls="hand: left"></a-entity>
-        <a-entity oculus-touch-controls="hand: right"></a-entity>
     </a-scene>
 
 </body>
