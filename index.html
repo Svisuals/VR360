@@ -19,6 +19,11 @@
         const viewer = new PANOLENS.Viewer({ container: document.querySelector('#panorama') });
 
         viewer.add(panorama);
+
+        // Añadir un evento para comprobar si la imagen se ha cargado
+        panorama.addEventListener('enter-fade', () => {
+            console.log('La imagen panorámica se ha cargado correctamente');
+        });
     </script>
 </body>
 </html>
