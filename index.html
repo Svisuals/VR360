@@ -80,14 +80,15 @@
         const viewer2 = new PANOLENS.Viewer({ container: document.getElementById('canvas2') });
 
         // Adicionar imagens panorâmicas aos visores
-        const panorama1 = new PANOLENS.ImagePanorama('images/image1.JPG');
-        const panorama2 = new PANOLENS.ImagePanorama('images/image2.JPG');
+        let panorama1 = new PANOLENS.ImagePanorama('images/image1.JPG');
+        let panorama2 = new PANOLENS.ImagePanorama('images/image2.JPG');
         
         viewer1.add(panorama1);
         viewer2.add(panorama2);
 
         // Sincronizar rotação entre os visores
         let syncScroll = true;
+
         function syncViewers() {
             if (!syncScroll) return;
 
@@ -95,8 +96,9 @@
             viewer2.getCamera().rotation.y = angle1;
         }
 
-        viewer1.addEventListener('panolens:camera', syncViewers);
-        viewer2.addEventListener('panolens:camera', syncViewers);
+        // Monitorar mudanças na câmera
+        viewer1.addEventListener('update', syncViewers);
+        viewer2.addEventListener('update', syncViewers);
 
         // Alternar sincronização
         const syncToggle = document.getElementById('syncToggle');
@@ -107,7 +109,7 @@
             lockIcon.src = syncScroll ? 'locked.png' : 'unlocked.png';
         });
 
-        // JavaScript para manejar múltiples imágenes
+        // JavaScript para manejar múltiplas imagens
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
