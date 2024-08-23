@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360°</title>
+    <title>Visor 360° con Modo VR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <style>
         body, html {
@@ -11,17 +11,29 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <a-scene>
-        <!-- Entidade da câmera para navegação -->
-        <a-camera></a-camera>
 
-        <!-- Imagem 360° -->
-        <a-sky src="360.jpg"></a-sky>
+    <!-- Contenedor de la escena A-Frame -->
+    <a-scene>
+        <!-- Entidad de la cámara para permitir la navegación en 360° y VR -->
+        <a-camera wasd-controls-enabled="false" look-controls-enabled="true"></a-camera>
+        
+        <!-- Imagen 360° -->
+        <a-sky src="#imagen360"></a-sky>
+
+        <!-- Definir las imágenes 360° aquí -->
+        <a-assets>
+            <!-- Cambia esta ruta a la ubicación de tu imagen -->
+            <img id="imagen360" src="360.jpg">
+        </a-assets>
+
+        <!-- Activar el botón VR en dispositivos móviles -->
+        <a-entity oculus-touch-controls="hand: left"></a-entity>
+        <a-entity oculus-touch-controls="hand: right"></a-entity>
     </a-scene>
+
 </body>
 </html>
