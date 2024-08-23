@@ -51,7 +51,6 @@
 <body>
 
     <button id="toggleView">Toggle View</button>
-    <button id="syncView">Sync View</button>
 
     <div id="container">
         <!-- Vista 1 -->
@@ -113,10 +112,6 @@
             camera.setAttribute('zoom-controls', '');
         });
 
-        const camera1 = document.querySelector('#camera1');
-        const camera2 = document.querySelector('#camera2');
-        let isSynced = false;
-
         document.getElementById('toggleView').addEventListener('click', function() {
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
@@ -125,33 +120,6 @@
             scene1.classList.toggle('hidden', !isScene1Visible);
             scene2.classList.toggle('hidden', isScene1Visible);
         });
-
-        document.getElementById('syncView').addEventListener('click', function() {
-            isSynced = !isSynced;
-            this.textContent = isSynced ? 'Unsync View' : 'Sync View';
-
-            if (isSynced) {
-                // Sincronizar vistas
-                camera1.addEventListener('camera-reset', syncCameras);
-                camera2.addEventListener('camera-reset', syncCameras);
-            } else {
-                // Dejar de sincronizar vistas
-                camera1.removeEventListener('camera-reset', syncCameras);
-                camera2.removeEventListener('camera-reset', syncCameras);
-            }
-        });
-
-        function syncCameras() {
-            const camera1El = camera1.components['look-controls'];
-            const camera2El = camera2.components['look-controls'];
-
-            // Sincronizar rotación y posición
-            const rotation = camera1El.camera.rotation;
-            const position = camera1El.camera.position;
-
-            camera2El.camera.rotation.set(rotation.x, rotation.y, rotation.z);
-            camera2El.camera.position.set(position.x, position.y, position.z);
-        }
     </script>
 
 </body>
