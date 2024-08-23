@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Sincronización y Zoom</title>
-    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.2/build/panolens.min.js"></script>
+    <title>Visor 360° con Modo VR y Zoom</title>
+    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.0/build/panolens.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -13,30 +14,10 @@
             height: 100%;
             overflow: hidden;
         }
-        #container {
-            display: flex;
+        #panolens-container {
             width: 100%;
             height: 100%;
-        }
-        canvas {
-            width: 50%;
-            height: 100%;
-            border: none;
-            background: #f0f0f0; /* Cor de fundo para canvas */
-        }
-        #syncToggle {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 1000; /* Garantir que o botão esteja visível sobre outros elementos */
-        }
-        #syncToggle img {
-            width: 32px;
-            height: 32px;
+            position: relative;
         }
         #controls {
             position: fixed;
@@ -61,55 +42,51 @@
 </head>
 <body>
 
-    <div id="container">
-        <canvas id="canvas1"></canvas>
-        <canvas id="canvas2"></canvas>
-    </div>
-
-    <button id="syncToggle">
-        <img id="lockIcon" src="locked.png" alt="Toggle Sync">
-    </button>
+    <div id="panolens-container"></div>
 
     <div id="controls">
         <div id="image-buttons"></div>
     </div>
 
     <script>
-        // Configuração dos visores Panolens
-        const viewer1 = new PANOLENS.Viewer({ container: document.getElementById('canvas1') });
-        const viewer2 = new PANOLENS.Viewer({ container: document.getElementById('canvas2') });
-
-        // Adicionar imagens panorâmicas aos visores
-        let panorama1 = new PANOLENS.ImagePanorama('images/image1.JPG');
-        let panorama2 = new PANOLENS.ImagePanorama('images/image2.JPG');
-        
-        viewer1.add(panorama1);
-        viewer2.add(panorama2);
-
-        // Sincronizar rotação entre os visores
-        let syncScroll = true;
-
-        function syncViewers() {
-            if (!syncScroll) return;
-
-            const angle1 = viewer1.getCamera().rotation.y;
-            viewer2.getCamera().rotation.y = angle1;
-        }
-
-        // Monitorar mudanças na câmera
-        viewer1.addEventListener('update', syncViewers);
-        viewer2.addEventListener('update', syncViewers);
-
-        // Alternar sincronização
-        const syncToggle = document.getElementById('syncToggle');
-        const lockIcon = document.getElementById('lockIcon');
-
-        syncToggle.addEventListener('click', () => {
-            syncScroll = !syncScroll;
-            lockIcon.src = syncScroll ? 'locked.png' : 'unlocked.png';
+        // Configura o visualizador Panolens
+        const container = document.getElementById('panolens-container');
+        const viewer = new PANOLENS.Viewer({
+            container: container
         });
 
-        // JavaScript para manejar múltiplas imagens
+        // Função para carregar imagem 360°
+        function cargarImagen360(imagen) {
+            const panorama = new PANOLENS.ImagePanorama(`images/${imagen}`);
+            viewer.add(panorama);
+            viewer.setPanorama(panorama);
+        }
+
+        // Configuração de zoom com Pinch
+        let fov = 75;
+        viewer.camera.position.set(0, 0, 0);
+        viewer.camera.fov = fov;
+        viewer.camera.updateProjectionMatrix();
+
+        // Ajusta o zoom com a roda do mouse
+        window.addEventListener('wheel', function(event) {
+            fov = Math.max(30, Math.min(90, fov - event.deltaY * 0.05));
+            viewer.camera.fov = fov;
+            viewer.camera.updateProjectionMatrix();
+        });
+
+        // Configuração do Pinch Zoom com Hammer.js
+        const canvas = viewer.renderer.domElement;
+        const hammer = new Hammer.Manager(canvas);
+        hammer.add(new Hammer.Pinch());
+
+        hammer.on('pinch', function(event) {
+            fov = Math.max(30, Math.min(90, fov / event.scale));
+            viewer.camera.fov = fov;
+            viewer.camera.updateProjectionMatrix();
+        });
+
+        // Manipulação de imagens
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
@@ -122,16 +99,12 @@
             images.forEach(image => {
                 const button = document.createElement('button');
                 button.textContent = image;
-                button.onclick = () => cambiarImagen360(image);
+                button.onclick = () => cargarImagen360(image);
                 controlsDiv.appendChild(button);
             });
 
-            function cambiarImagen360(nombreImagen) {
-                const newPanorama = new PANOLENS.ImagePanorama(`images/${nombreImagen}`);
-                viewer1.remove(panorama1); // Remove old panorama
-                viewer1.add(newPanorama); // Add new panorama
-                panorama1 = newPanorama; // Update reference to the current panorama
-            }
+            // Carrega a primeira imagem por padrão
+            cargarImagen360(images[0]);
         });
     </script>
 
