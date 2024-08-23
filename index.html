@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
+    <title>Comparar Imágenes 360°</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
@@ -15,11 +15,21 @@
             height: 100%;
             overflow: hidden;
         }
-        a-scene {
+        #container {
+            position: relative;
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column; /* Default vertical split for mobile */
         }
-        #controls {
+        .scene-container {
+            flex: 1;
+            position: relative;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
             position: fixed;
             top: 10px;
             left: 10px;
@@ -27,39 +37,46 @@
             background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 10px;
-            border-radius: 5px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+        @media (min-width: 768px) {
+            #container {
+                flex-direction: row; /* Horizontal split for PC */
+            }
         }
     </style>
 </head>
 <body>
 
-    <a-scene>
-        <!-- Cámara con controles táctiles -->
-        <a-camera id="camera"
-            position="0 1.6 0"
-            touch-controls
-            look-controls>
-        </a-camera>
+    <button id="toggleView">Toggle View</button>
+    <button id="syncView">Sync View</button>
 
-        <!-- Imagen 360° -->
-        <a-sky id="imagen360" src="images/image1.JPG"></a-sky>
+    <div id="container">
+        <!-- Vista 1 -->
+        <div id="scene1" class="scene-container">
+            <a-scene>
+                <a-camera id="camera1"
+                    position="0 1.6 0"
+                    touch-controls
+                    look-controls>
+                </a-camera>
+                <a-sky id="sky1" src="images/image1.JPG"></a-sky>
+            </a-scene>
+        </div>
 
-        <a-assets>
-            <!-- Las imágenes se cargarán dinámicamente -->
-        </a-assets>
-    </a-scene>
-
-    <div id="controls">
-        <div id="image-buttons"></div>
+        <!-- Vista 2 -->
+        <div id="scene2" class="scene-container hidden">
+            <a-scene>
+                <a-camera id="camera2"
+                    position="0 1.6 0"
+                    touch-controls
+                    look-controls>
+                </a-camera>
+                <a-sky id="sky2" src="images/image2.JPG"></a-sky>
+            </a-scene>
+        </div>
     </div>
 
     <script>
@@ -92,30 +109,49 @@
             }
         });
 
-        // Añadir el componente a la cámara
-        document.querySelector('a-camera').setAttribute('zoom-controls', '');
+        document.querySelectorAll('a-camera').forEach(camera => {
+            camera.setAttribute('zoom-controls', '');
+        });
 
-        // JavaScript para manejar múltiples imágenes
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = [
-                'image1.JPG',
-                'image2.JPG',
-                'image3.JPG'
-            ];
+        const camera1 = document.querySelector('#camera1');
+        const camera2 = document.querySelector('#camera2');
+        let isSynced = false;
 
-            const controlsDiv = document.getElementById('image-buttons');
+        document.getElementById('toggleView').addEventListener('click', function() {
+            const scene1 = document.getElementById('scene1');
+            const scene2 = document.getElementById('scene2');
+            const isScene1Visible = !scene1.classList.contains('hidden');
 
-            images.forEach(image => {
-                const button = document.createElement('button');
-                button.textContent = image;
-                button.onclick = () => cambiarImagen360(image);
-                controlsDiv.appendChild(button);
-            });
+            scene1.classList.toggle('hidden', !isScene1Visible);
+            scene2.classList.toggle('hidden', isScene1Visible);
+        });
 
-            function cambiarImagen360(nombreImagen) {
-                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
+        document.getElementById('syncView').addEventListener('click', function() {
+            isSynced = !isSynced;
+            this.textContent = isSynced ? 'Unsync View' : 'Sync View';
+
+            if (isSynced) {
+                // Sincronizar vistas
+                camera1.addEventListener('camera-reset', syncCameras);
+                camera2.addEventListener('camera-reset', syncCameras);
+            } else {
+                // Dejar de sincronizar vistas
+                camera1.removeEventListener('camera-reset', syncCameras);
+                camera2.removeEventListener('camera-reset', syncCameras);
             }
         });
+
+        function syncCameras() {
+            const camera1El = camera1.components['look-controls'];
+            const camera2El = camera2.components['look-controls'];
+
+            // Sincronizar rotación y posición
+            const rotation = camera1El.camera.rotation;
+            const position = camera1El.camera.position;
+
+            camera2El.camera.rotation.set(rotation.x, rotation.y, rotation.z);
+            camera2El.camera.position.set(position.x, position.y, position.z);
+        }
     </script>
 
 </body>
