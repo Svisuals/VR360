@@ -1,30 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visores de Imagem 360</title>
+    <title>Visor 360° con Sincronización y Zoom</title>
+    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.2/build/panolens.min.js"></script>
     <style>
         body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
         }
-
         #container {
             display: flex;
             width: 100%;
             height: 100%;
         }
-
         canvas {
             width: 50%;
             height: 100%;
             border: none;
             background: #f0f0f0; /* Cor de fundo para canvas */
         }
-
         #syncToggle {
             position: fixed;
             bottom: 10px;
@@ -35,43 +34,60 @@
             cursor: pointer;
             z-index: 1000; /* Garantir que o botão esteja visível sobre outros elementos */
         }
-
         #syncToggle img {
             width: 32px;
             height: 32px;
         }
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
     <div id="container">
         <canvas id="canvas1"></canvas>
         <canvas id="canvas2"></canvas>
     </div>
+
     <button id="syncToggle">
         <img id="lockIcon" src="locked.png" alt="Toggle Sync">
     </button>
 
-    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.2/build/panolens.min.js"></script>
+    <div id="controls">
+        <div id="image-buttons"></div>
+    </div>
+
     <script>
-        // Obtendo referências aos elementos
-        const canvas1 = document.getElementById('canvas1');
-        const canvas2 = document.getElementById('canvas2');
-        const syncToggle = document.getElementById('syncToggle');
-        const lockIcon = document.getElementById('lockIcon');
-        let syncScroll = true;
-
         // Configuração dos visores Panolens
-        const viewer1 = new PANOLENS.Viewer({ container: canvas1 });
-        const viewer2 = new PANOLENS.Viewer({ container: canvas2 });
+        const viewer1 = new PANOLENS.Viewer({ container: document.getElementById('canvas1') });
+        const viewer2 = new PANOLENS.Viewer({ container: document.getElementById('canvas2') });
 
-        // Adicionar imagem panorâmica aos visores
-        const panorama1 = new PANOLENS.ImagePanorama('path/to/your/image1.jpg');
-        const panorama2 = new PANOLENS.ImagePanorama('path/to/your/image2.jpg');
-
+        // Adicionar imagens panorâmicas aos visores
+        const panorama1 = new PANOLENS.ImagePanorama('images/image1.JPG');
+        const panorama2 = new PANOLENS.ImagePanorama('images/image2.JPG');
+        
         viewer1.add(panorama1);
         viewer2.add(panorama2);
 
-        // Sincronizar a rotação entre os visores
+        // Sincronizar rotação entre os visores
+        let syncScroll = true;
         function syncViewers() {
             if (!syncScroll) return;
 
@@ -83,10 +99,39 @@
         viewer2.addEventListener('panolens:camera', syncViewers);
 
         // Alternar sincronização
+        const syncToggle = document.getElementById('syncToggle');
+        const lockIcon = document.getElementById('lockIcon');
+
         syncToggle.addEventListener('click', () => {
             syncScroll = !syncScroll;
             lockIcon.src = syncScroll ? 'locked.png' : 'unlocked.png';
         });
+
+        // JavaScript para manejar múltiples imágenes
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = [
+                'image1.JPG',
+                'image2.JPG',
+                'image3.JPG'
+            ];
+
+            const controlsDiv = document.getElementById('image-buttons');
+
+            images.forEach(image => {
+                const button = document.createElement('button');
+                button.textContent = image;
+                button.onclick = () => cambiarImagen360(image);
+                controlsDiv.appendChild(button);
+            });
+
+            function cambiarImagen360(nombreImagen) {
+                const newPanorama = new PANOLENS.ImagePanorama(`images/${nombreImagen}`);
+                viewer1.remove(panorama1); // Remove old panorama
+                viewer1.add(newPanorama); // Add new panorama
+                panorama1 = newPanorama; // Update reference to the current panorama
+            }
+        });
     </script>
+
 </body>
 </html>
