@@ -68,7 +68,7 @@
             onPinch: function (event) {
                 const scale = event.scale;
                 const fov = this.cameraEl.getAttribute('camera').fov;
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, fov / scale));
+                const newFov = Math.max(this.data.min, Math.min(this.data.max, fov / scale * 1.2)); // Adjust the scaling factor as needed
                 this.cameraEl.setAttribute('camera', 'fov', newFov);
             }
         });
