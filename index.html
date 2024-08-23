@@ -25,11 +25,10 @@
 
     <a-scene>
         <!-- Cámara con controles táctiles -->
-        <a-camera id="camera" 
+        <a-camera id="camera"
             position="0 1.6 0"
-            look-controls="pointerLockEnabled: false"
-            wasd-controls
-            touch-controls>
+            look-controls="enabled: true; reverseMouseDrag: false; touchEnabled: true;"
+            wasd-controls>
         </a-camera>
 
         <!-- Imagen 360° -->
