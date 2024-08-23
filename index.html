@@ -1,178 +1,142 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <title>Acompanhamento de Obra 360</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
-            width: 100%;
             height: 100%;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        #controls {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #split-button {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .split-view a-scene {
-            width: 50%;
-            height: 100%;
-            float: left;
-        }
-        .single-view a-scene {
+
+        #container {
+            display: flex;
             width: 100%;
             height: 100%;
-            display: block;
+            position: relative;
+            flex-direction: row; /* Por padrão, dividir horizontalmente */
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #f0f0f0; /* Cor de fundo para canvas */
+        }
+
+        #canvas2 {
+            display: none;
+        }
+
+        #canvas3 {
+            display: none;
+            width: 50%; /* Tamanho inicial do terceiro canvas */
+            height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: 1px solid #ccc;
+            z-index: 999;
+        }
+
+        #toggleButton {
+            position: fixed;
+            top: 0;
+            left: calc(50% + 4cm); /* Começa 4 cm à direita */
+            width: 32px; /* Largura do logo DUP */
+            height: 32px; /* Altura do logo DUP */
+            background: url('DUP.jpg') no-repeat center center;
+            background-size: cover;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #toggleCanvas3Button {
+            position: absolute;
+            top: 2cm; /* Ajustado conforme solicitado */
+            left: 1cm; /* Ajustado conforme solicitado */
+            width: 32px;
+            height: 32px;
+            background: url('CRO.jpg') no-repeat center center;
+            background-size: cover;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+            display: none; /* Por padrão, o terceiro canvas está escondido */
+        }
+
+        @media (max-width: 768px) {
+            #toggleButton {
+                display: none; /* Oculta o toggleButton em dispositivos móveis */
+            }
+
+            #toggleCanvas3Button {
+                display: none; /* Oculta o toggleCanvas3Button em dispositivos móveis */
+            }
+
+            #container {
+                flex-direction: column; /* Altera para coluna em dispositivos móveis */
+            }
+
+            canvas {
+                width: 100%;
+                height: 50%;
+            }
+
+            #canvas2 {
+                display: block;
+            }
+
+            #canvas3 {
+                display: none;
+            }
+        }
+
+        /* Nova regra para dividir horizontalmente quando o terceiro canvas está visível */
+        @media (min-width: 769px) {
+            #container.horizontal-split {
+                flex-direction: row;
+            }
+
+            #canvas1 {
+                width: 100%; /* Ocupa toda a largura por padrão */
+            }
+
+            #canvas3 {
+                display: block;
+                width: 50%; /* Terceiro canvas ocupa metade da largura */
+                height: 100%; /* Altura de 100% para o terceiro canvas */
+            }
         }
     </style>
 </head>
 <body>
-
-    <div id="controls">
-        <div id="image-buttons"></div>
+    <div id="container" class="horizontal-split">
+        <canvas id="canvas1"></canvas>
+        <canvas id="canvas2"></canvas>
+        <canvas id="canvas3"></canvas>
     </div>
-
-    <div id="split-button">Dividir Vista</div>
-
-    <div id="scene-container" class="single-view">
-        <a-scene>
-            <!-- Cámara con controles táctiles -->
-            <a-camera id="camera"
-                position="0 1.6 0"
-                touch-controls
-                look-controls>
-            </a-camera>
-
-            <!-- Imagen 360° -->
-            <a-sky id="imagen360" src="images/image1.JPG"></a-sky>
-
-            <a-assets>
-                <!-- Las imágenes se cargarán dinámicamente -->
-            </a-assets>
-        </a-scene>
-
-        <a-scene id="scene2" class="split-view" style="display: none;">
-            <!-- Cámara con controles táctiles -->
-            <a-camera id="camera2"
-                position="0 1.6 0"
-                touch-controls
-                look-controls>
-            </a-camera>
-
-            <!-- Imagen 360° -->
-            <a-sky id="imagen360-2" src="images/image2.JPG"></a-sky>
-
-            <a-assets>
-                <!-- Las imágenes se cargarán dinámicamente -->
-            </a-assets>
-        </a-scene>
-    </div>
+    <button id="toggleButton"></button>
+    <button id="toggleCanvas3Button"></button>
 
     <script>
-        AFRAME.registerComponent('zoom-controls', {
-            schema: {
-                min: {type: 'number', default: 30},
-                max: {type: 'number', default: 90}
-            },
-            init: function () {
-                this.cameraEl = this.el.sceneEl.camera.el;
-                this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-                this.setupPinchZoom();
-            },
-            onWheel: function (event) {
-                const cameraComponent = this.cameraEl.getAttribute('camera');
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-                this.cameraEl.setAttribute('camera', 'fov', newFov);
-            },
-            setupPinchZoom: function () {
-                const canvas = this.el.sceneEl.renderer.domElement;
-                const hammer = new Hammer.Manager(canvas);
-                hammer.add(new Hammer.Pinch());
-
-                hammer.on('pinch', (event) => {
-                    const cameraComponent = this.cameraEl.getAttribute('camera');
-                    let newFov = cameraComponent.fov / event.scale;
-                    newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
-                    this.cameraEl.setAttribute('camera', 'fov', newFov);
-                });
-            }
+        document.getElementById('toggleButton').addEventListener('click', function() {
+            var container = document.getElementById('container');
+            container.classList.toggle('horizontal-split');
+            document.getElementById('canvas2').style.display = container.classList.contains('horizontal-split') ? 'none' : 'block';
+            document.getElementById('canvas1').style.width = container.classList.contains('horizontal-split') ? '50%' : '100%';
         });
 
-        // Añadir el componente a la cámara
-        document.querySelector('a-camera').setAttribute('zoom-controls', '');
-        document.querySelector('#camera2').setAttribute('zoom-controls', '');
-
-        // JavaScript para manejar múltiples imágenes
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = [
-                'image1.JPG',
-                'image2.JPG',
-                'image3.JPG'
-            ];
-
-            const controlsDiv = document.getElementById('image-buttons');
-
-            images.forEach(image => {
-                const button = document.createElement('button');
-                button.textContent = image;
-                button.onclick = () => cambiarImagen360(image);
-                controlsDiv.appendChild(button);
-            });
-
-            function cambiarImagen360(nombreImagen) {
-                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
-                document.querySelector('#imagen360-2').setAttribute('src', `images/${nombreImagen}`);
-            }
-        });
-
-        // Funcionalidade para dividir ou unir as visões
-        document.getElementById('split-button').addEventListener('click', function() {
-            const container = document.getElementById('scene-container');
-            if (container.classList.contains('single-view')) {
-                container.classList.remove('single-view');
-                container.classList.add('split-view');
-                document.getElementById('scene2').style.display = 'block';
-                this.textContent = 'Unir Vista';
-            } else {
-                container.classList.remove('split-view');
-                container.classList.add('single-view');
-                document.getElementById('scene2').style.display = 'none';
-                this.textContent = 'Dividir Vista';
-            }
+        document.getElementById('toggleCanvas3Button').addEventListener('click', function() {
+            var canvas3 = document.getElementById('canvas3');
+            canvas3.style.display = canvas3.style.display === 'none' ? 'block' : 'none';
         });
     </script>
-
 </body>
 </html>
