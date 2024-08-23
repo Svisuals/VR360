@@ -3,106 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Panolens.js</title>
-    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.0/build/panolens.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <title>Visor 360 con Panolens.js</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #panolens-container {
-            width: 100%;
-            height: 100%;
-        }
-        #controls {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        body { margin: 0; }
+        #panorama { width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
-
-    <div id="panolens-container"></div>
-
-    <div id="controls">
-        <div id="image-buttons"></div>
-    </div>
-
+    <div id="panorama"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.0/build/panolens.min.js"></script>
     <script>
-        // Inicializa o visualizador Panolens
-        const container = document.getElementById('panolens-container');
-        const viewer = new PANOLENS.Viewer({
-            container: container
-        });
+        // Configuración del visor 360
+        const panorama = new PANOLENS.ImagePanorama('image1.JPG');
+        const viewer = new PANOLENS.Viewer({ container: document.querySelector('#panorama') });
 
-        // Função para carregar imagem 360°
-        function cargarImagen360(imagen) {
-            const panorama = new PANOLENS.ImagePanorama(`images/${imagen}`);
-            viewer.clear(); // Limpa panoramas anteriores
-            viewer.add(panorama);
-            viewer.setPanorama(panorama);
-        }
-
-        // Adiciona botões para trocar imagens
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = [
-                'image1.JPG',
-                'image2.JPG',
-                'image3.JPG'
-            ];
-
-            const controlsDiv = document.getElementById('image-buttons');
-
-            images.forEach(image => {
-                const button = document.createElement('button');
-                button.textContent = image;
-                button.onclick = () => cargarImagen360(image);
-                controlsDiv.appendChild(button);
-            });
-
-            // Carrega a primeira imagem por padrão
-            cargarImagen360(images[0]);
-        });
-
-        // Ajuste de zoom com a roda do mouse
-        let fov = 75;
-        function ajustarZoom(event) {
-            fov = Math.max(30, Math.min(90, fov - event.deltaY * 0.05));
-            viewer.camera.fov = fov;
-            viewer.camera.updateProjectionMatrix();
-        }
-        window.addEventListener('wheel', ajustarZoom);
-
-        // Ajuste de zoom com Pinch usando Hammer.js
-        const canvas = viewer.renderer.domElement;
-        const hammer = new Hammer.Manager(canvas);
-        hammer.add(new Hammer.Pinch());
-
-        hammer.on('pinch', function(event) {
-            fov = Math.max(30, Math.min(90, fov / event.scale));
-            viewer.camera.fov = fov;
-            viewer.camera.updateProjectionMatrix();
-        });
+        viewer.add(panorama);
     </script>
-
 </body>
 </html>
