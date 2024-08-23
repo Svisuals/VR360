@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acompanhamento de Obra 360</title>
+    <title>Visores de Imagem 360</title>
     <style>
         body, html {
             margin: 0;
@@ -51,6 +51,7 @@
         <img id="lockIcon" src="locked.png" alt="Toggle Sync">
     </button>
 
+    <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.2/build/panolens.min.js"></script>
     <script>
         // Obtendo referências aos elementos
         const canvas1 = document.getElementById('canvas1');
@@ -59,39 +60,32 @@
         const lockIcon = document.getElementById('lockIcon');
         let syncScroll = true;
 
-        // Função para desenhar algo básico nos canvas
-        function drawOnCanvas(ctx) {
-            ctx.fillStyle = '#ff0000';
-            ctx.fillRect(10, 10, 100, 100);
-        }
+        // Configuração dos visores Panolens
+        const viewer1 = new PANOLENS.Viewer({ container: canvas1 });
+        const viewer2 = new PANOLENS.Viewer({ container: canvas2 });
 
-        // Configura os contextos dos canvas
-        const ctx1 = canvas1.getContext('2d');
-        const ctx2 = canvas2.getContext('2d');
+        // Adicionar imagem panorâmica aos visores
+        const panorama1 = new PANOLENS.ImagePanorama('path/to/your/image1.jpg');
+        const panorama2 = new PANOLENS.ImagePanorama('path/to/your/image2.jpg');
 
-        // Desenha nos canvas
-        drawOnCanvas(ctx1);
-        drawOnCanvas(ctx2);
+        viewer1.add(panorama1);
+        viewer2.add(panorama2);
 
-        // Função para sincronizar o conteúdo dos canvas
-        function syncCanvas() {
+        // Sincronizar a rotação entre os visores
+        function syncViewers() {
             if (!syncScroll) return;
 
-            // Aqui você pode implementar a lógica para sincronizar o conteúdo dos canvas
-            // Por exemplo, desenhar no canvas2 o mesmo conteúdo que canvas1
-            ctx2.clearRect(0, 0, canvas2.width, canvas2.height); // Limpar canvas2
-            ctx2.drawImage(canvas1, 0, 0); // Desenhar o conteúdo de canvas1 em canvas2
+            const angle1 = viewer1.getCamera().rotation.y;
+            viewer2.getCamera().rotation.y = angle1;
         }
 
-        // Chama a função de sincronização quando o conteúdo dos canvas muda
-        canvas1.addEventListener('mouseup', syncCanvas); // Evento para detectar mudanças
-        canvas2.addEventListener('mouseup', syncCanvas); // Evento para detectar mudanças
+        viewer1.addEventListener('panolens:camera', syncViewers);
+        viewer2.addEventListener('panolens:camera', syncViewers);
 
         // Alternar sincronização
         syncToggle.addEventListener('click', () => {
             syncScroll = !syncScroll;
             lockIcon.src = syncScroll ? 'locked.png' : 'unlocked.png';
-            syncCanvas(); // Sincroniza o conteúdo quando a sincronização é ativada
         });
     </script>
 </body>
