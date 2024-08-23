@@ -15,10 +15,17 @@
             height: 100%;
             overflow: hidden;
         }
-        #scene {
+        #scene-container {
             position: relative;
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        #aframe-scene {
+            width: 100%;
+            height: calc(100% - 40px); /* Reduce la altura para hacer espacio para el botón */
+            position: relative;
         }
         a-scene {
             width: 100%;
@@ -48,9 +55,9 @@
         }
         #toggle-btn {
             position: absolute;
-            top: 50%;
+            top: 0;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             z-index: 20;
             background: rgba(0, 0, 0, 0.5);
             color: white;
@@ -59,17 +66,20 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .split-left, .split-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            background-color: transparent;
+        }
         .split-left {
             width: 50%;
-            height: 100%;
-            float: left;
-            background-color: transparent;
+            left: 0;
         }
         .split-right {
             width: 50%;
-            height: 100%;
-            float: left;
-            background-color: transparent;
+            right: 0;
         }
         .full-view {
             width: 100%;
@@ -79,7 +89,7 @@
 </head>
 <body>
 
-    <div id="scene">
+    <div id="scene-container">
         <a-scene id="aframe-scene">
             <!-- Cámara con controles táctiles -->
             <a-camera id="camera"
@@ -89,8 +99,8 @@
             </a-camera>
 
             <!-- Imágenes 360° -->
-            <a-sky id="imagen360-left" class="split-left" src="images/image1.JPG"></a-sky>
-            <a-sky id="imagen360-right" class="split-right" src="images/image2.JPG"></a-sky>
+            <a-sky id="imagen360-left" class="full-view" src="images/image1.JPG"></a-sky>
+            <a-sky id="imagen360-right" class="full-view" src="images/image2.JPG"></a-sky>
 
             <a-assets>
                 <!-- Las imágenes se cargarán dinámicamente -->
@@ -206,9 +216,13 @@
         window.addEventListener('resize', () => {
             const sceneEl = document.querySelector('#aframe-scene');
             if (window.innerWidth < 768) {
-                sceneEl.classList.add('full-view');
+                sceneEl.classList.remove('full-view');
+                document.querySelector('#imagen360-left').classList.add('full-view');
+                document.querySelector('#imagen360-right').classList.add('full-view');
             } else {
                 sceneEl.classList.remove('full-view');
+                document.querySelector('#imagen360-left').classList.remove('full-view');
+                document.querySelector('#imagen360-right').classList.remove('full-view');
             }
         });
     </script>
