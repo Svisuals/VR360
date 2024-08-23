@@ -25,9 +25,9 @@
     <!-- Contenedor de la escena A-Frame -->
     <a-scene>
         <!-- Entidad de la cámara con controles habilitados -->
-        <a-camera 
-            wasd-controls="enabled: true; fly: true"  <!-- Permite moverse en todas as direcciones -->
-            look-controls="pointerLockEnabled: true"  <!-- Habilita el control de mirada -->
+        <a-camera id="camera"
+            wasd-controls="enabled: true; fly: true"
+            look-controls="pointerLockEnabled: true; touchEnabled: true" <!-- Habilita controles táctiles -->
             mouse-cursor>
         </a-camera>
 
@@ -56,7 +56,7 @@
             setupTouchControls: function () {
                 const canvas = this.el.sceneEl.renderer.canvas;
                 const hammer = new Hammer(canvas);
-                
+
                 hammer.get('pinch').set({ enable: true });
                 hammer.on('pinch', (event) => this.onPinch(event));
             },
@@ -66,9 +66,14 @@
                 this.cameraEl.setAttribute('camera', 'fov', newFov);
             },
             onPinch: function (event) {
+                // Ajusta la sensibilidad del zoom según el tamaño del pinch
                 const scale = event.scale;
-                const fov = this.cameraEl.getAttribute('camera').fov;
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, fov / scale * 1.2)); // Adjust the scaling factor as needed
+                const currentFov = this.cameraEl.getAttribute('camera').fov;
+                let newFov = currentFov / scale;
+                
+                // Asegúrate de que el nuevo FOV esté dentro de los límites
+                newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
+                
                 this.cameraEl.setAttribute('camera', 'fov', newFov);
             }
         });
