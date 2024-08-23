@@ -1,3 +1,5 @@
+
+Tú dijiste:
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -74,12 +76,9 @@
                 this.setupPinchZoom();
             },
             onWheel: function (event) {
-                // Verifica se o evento é dentro da cena para aplicar o zoom
-                if (event.target.tagName === 'A-SCENE') {
-                    const cameraComponent = this.cameraEl.getAttribute('camera');
-                    const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-                    this.cameraEl.setAttribute('camera', 'fov', newFov);
-                }
+                const cameraComponent = this.cameraEl.getAttribute('camera');
+                const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
+                this.cameraEl.setAttribute('camera', 'fov', newFov);
             },
             setupPinchZoom: function () {
                 const canvas = this.el.sceneEl.renderer.domElement;
@@ -116,7 +115,7 @@
             });
 
             function cambiarImagen360(nombreImagen) {
-                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
+                document.querySelector('#imagen360').setAttribute('src', images/${nombreImagen});
             }
         });
     </script>
