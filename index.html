@@ -11,19 +11,6 @@
         body, html {
             margin: 0;
             padding: 0;
-            width: 100%;<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -130,94 +117,6 @@
             }
         });
     </script>
-
-</body>
-</html>
-
-            height: 100%;
-            overflow: hidden;
-        }
-        .container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        a-scene {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-        }
-        .split-button {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            z-index: 1;
-        }
-        @media (max-width: 600px) {
-            .split-button {
-                top: 5px;
-                left: 50%;
-            }
-            .container.split .a-scene {
-                width: 50%;
-                height: 100%;
-            }
-            .container.split .a-scene.left {
-                float: left;
-            }
-            .container.split .a-scene.right {
-                float: right;
-            }
-        }
-    </style>
-</head>
-<body>
-
-<div class="container" id="container">
-    <button class="split-button" id="toggleButton">Dividir</button>
-    <a-scene id="scene1" class="a-scene">
-        <a-camera id="camera1" position="0 1.6 0" touch-controls look-controls></a-camera>
-        <a-sky id="imagen360_1" src="360.JPG"></a-sky>
-        <a-assets>
-            <img id="imagen360_1" src="360.JPG">
-        </a-assets>
-    </a-scene>
-    <a-scene id="scene2" class="a-scene" style="display: none;">
-        <a-camera id="camera2" position="0 1.6 0" touch-controls look-controls></a-camera>
-        <a-sky id="imagen360_2" src="360.JPG"></a-sky>
-        <a-assets>
-            <img id="imagen360_2" src="360.JPG">
-        </a-assets>
-    </a-scene>
-</div>
-
-<script>
-    const splitButton = document.getElementById('toggleButton');
-    const container = document.getElementById('container');
-    const scene1 = document.getElementById('scene1');
-    const scene2 = document.getElementById('scene2');
-
-    let isSplit = false;
-
-    splitButton.addEventListener('click', () => {
-        isSplit = !isSplit;
-        if (isSplit) {
-            container.classList.add('split');
-            scene1.style.display = 'block';
-            scene2.style.display = 'block';
-        } else {
-            container.classList.remove('split');
-            scene1.style.display = 'block';
-            scene2.style.display = 'none';
-        }
-    });
-</script>
 
 </body>
 </html>
