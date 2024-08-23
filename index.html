@@ -1,237 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acompanhamento de Obra 360</title>
+    <title>Visor 360° con Modo VR y Zoom</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
         body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
-
-        #container {
-            display: flex;
-            width: 100%;
-            height: 100%;
+        .container {
             position: relative;
-            flex-direction: row; /* Por padrão, dividir horizontalmente */
-        }
-
-        iframe {
             width: 100%;
             height: 100%;
-            border: none;
         }
-
-        #iframe2 {
-            display: none;
-        }
-
-        #iframe3 {
-            display: none;
-            width: 50%; /* Tamanho inicial do terceiro iframe */
+        a-scene {
+            width: 100%;
             height: 100%;
             position: absolute;
-            top: 0;
-            right: 0;
-            border: 1px solid #ccc;
-            z-index: 999;
         }
-
-        #toggleButton {
-            position: fixed;
-            top: 0;
-            left: calc(50% + 4cm); /* Começa 4 cm à direita */
-            width: 32px; /* Largura do logo DUP */
-            height: 32px; /* Altura do logo DUP */
-            background: url('DUP.jpg') no-repeat center center;
-            background-size: cover;
-            border: none;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        #toggleIframe3Button {
+        .split-button {
             position: absolute;
-            top: 2cm; /* Ajustado conforme solicitado */
-            left: 1cm; /* Ajustado conforme solicitado */
-            width: 32px;
-            height: 32px;
-            background: url('CRO.jpg') no-repeat center center;
-            background-size: cover;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
             border: none;
+            padding: 10px 20px;
             cursor: pointer;
-            z-index: 1000;
-            display: none; /* Por padrão, o terceiro iframe está escondido */
+            z-index: 1;
         }
-
-        @media (max-width: 768px) {
-            #toggleButton {
-                display: none; /* Oculta o toggleButton em dispositivos móveis */
+        @media (max-width: 600px) {
+            .split-button {
+                top: 5px;
+                left: 50%;
             }
-
-            #toggleIframe3Button {
-                display: none; /* Oculta o toggleIframe3Button em dispositivos móveis */
+            .container.split .a-scene {
+                width: 50%;
+                height: 100%;
             }
-
-            #container {
-                flex-direction: column; /* Altera para coluna em dispositivos móveis */
+            .container.split .a-scene.left {
+                float: left;
             }
-
-            iframe {
-                width: 100%;
-                height: 50%;
-            }
-
-            #iframe2 {
-                display: block;
-            }
-
-            #iframe3 {
-                display: none;
-            }
-        }
-
-        /* Nova regra para dividir horizontalmente quando o terceiro iframe está visível */
-        @media (min-width: 769px) {
-            #container.horizontal-split {
-                flex-direction: row;
-            }
-
-            #iframe1 {
-                width: 100%; /* Ocupa toda a largura por padrão */
-            }
-
-            #iframe3 {
-                display: block;
-                width: 50%; /* Terceiro iframe ocupa metade da largura */
-                height: 100%; /* Altura de 100% para o terceiro iframe */
+            .container.split .a-scene.right {
+                float: right;
             }
         }
     </style>
 </head>
 <body>
-    <div id="toggleButton"></div>
-    <div id="container">
-        <iframe id="iframe1" src="https://svisuals.github.io/O360/"></iframe>
-        <iframe id="iframe2" src="https://svisuals.github.io/O360/"></iframe>
-        <iframe id="iframe3" src="https://svisuals.github.io/ExcelViwer/"></iframe>
-        <div id="toggleIframe3Button"></div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.2/iframeResizer.min.js"></script>
-    <script>
-        // Inicializando a biblioteca iframe-resizer
-        iFrameResize({ log: true }, '#iframe1', '#iframe2');
 
-        let syncScroll = true;
-        const iframe1 = document.getElementById('iframe1');
-        const iframe2 = document.getElementById('iframe2');
-        const iframe3 = document.getElementById('iframe3');
-        const toggleButton = document.getElementById('toggleButton');
-        const toggleIframe3Button = document.getElementById('toggleIframe3Button');
+<div class="container" id="container">
+    <button class="split-button" id="toggleButton">Dividir</button>
+    <a-scene id="scene1" class="a-scene">
+        <a-camera id="camera1" position="0 1.6 0" touch-controls look-controls></a-camera>
+        <a-sky id="imagen360_1" src="360.JPG"></a-sky>
+        <a-assets>
+            <img id="imagen360_1" src="360.JPG">
+        </a-assets>
+    </a-scene>
+    <a-scene id="scene2" class="a-scene" style="display: none;">
+        <a-camera id="camera2" position="0 1.6 0" touch-controls look-controls></a-camera>
+        <a-sky id="imagen360_2" src="360.JPG"></a-sky>
+        <a-assets>
+            <img id="imagen360_2" src="360.JPG">
+        </a-assets>
+    </a-scene>
+</div>
 
-        function syncScrolling(event) {
-            if (!syncScroll) return;
+<script>
+    const splitButton = document.getElementById('toggleButton');
+    const container = document.getElementById('container');
+    const scene1 = document.getElementById('scene1');
+    const scene2 = document.getElementById('scene2');
 
-            const otherIframe = event.target === iframe1 ? iframe2 : iframe1;
-            const targetIframe = event.target.contentWindow;
+    let isSplit = false;
 
-            otherIframe.contentWindow.scrollTo(targetIframe.scrollX, targetIframe.scrollY);
+    splitButton.addEventListener('click', () => {
+        isSplit = !isSplit;
+        if (isSplit) {
+            container.classList.add('split');
+            scene1.style.display = 'block';
+            scene2.style.display = 'block';
+        } else {
+            container.classList.remove('split');
+            scene1.style.display = 'block';
+            scene2.style.display = 'none';
         }
+    });
+</script>
 
-        iframe1.addEventListener('load', () => {
-            iframe1.contentWindow.addEventListener('scroll', syncScrolling);
-        });
-
-        iframe2.addEventListener('load', () => {
-            iframe2.contentWindow.addEventListener('scroll', syncScrolling);
-        });
-
-        toggleButton.addEventListener('click', () => {
-            if (iframe2.style.display === 'none') {
-                // Mostrar iframe2
-                iframe2.style.display = 'block';
-                iframe1.style.width = '50%';
-                iframe2.style.width = '50%';
-                iframe3.style.display = 'none'; // Garantir que o terceiro iframe esteja oculto ao mostrar iframe2
-                toggleIframe3Button.style.display = 'none';
-                toggleButton.style.left = '49%'; // Centralizar o botão quando o iframe2 está visível
-                document.getElementById('container').classList.remove('horizontal-split');
-            } else {
-                // Verificar se o terceiro iframe está visível e o iframe2 está visível
-                if (iframe3.style.display === 'none' && iframe2.style.display === 'block') {
-                    // Mostrar terceiro iframe apenas se iframe2 estiver oculto
-                    iframe2.style.display = 'none';
-                    iframe1.style.width = '100%';
-                    toggleIframe3Button.style.display = 'block';
-                    toggleButton.style.left = 'calc(50% + 4cm)'; // Voltar o botão para 4 cm à direita
-                    document.getElementById('container').classList.remove('horizontal-split');
-                } else {
-                    // Mostrar iframe2
-                    iframe2.style.display = 'block';
-                    iframe1.style.width = '50%';
-                    iframe2.style.width = '50%';
-                    iframe3.style.display = 'none';
-                    toggleIframe3Button.style.display = 'none';
-                    toggleButton.style.left = '49%'; // Centralizar o botão quando o iframe2 está visível
-                    document.getElementById('container').classList.remove('horizontal-split');
-                }
-            }
-        });
-
-        toggleIframe3Button.addEventListener('click', () => {
-            if (iframe3.style.display === 'none') {
-                iframe3.style.display = 'block';
-                document.getElementById('container').classList.add('horizontal-split');
-                iframe1.style.width = '50%'; // Reduzir o iframe1 para metade da largura
-                toggleButton.style.left = '49%'; // Centralizar o botão quando o iframe3 está visível
-            } else {
-                iframe3.style.display = 'none';
-                document.getElementById('container').classList.remove('horizontal-split');
-                iframe1.style.width = '100%'; // Restaurar o iframe1 para ocupar toda a largura
-                toggleButton.style.left = 'calc(50% + 4cm)'; // Voltar o botão para 4 cm à direita
-            }
-        });
-
-        function adjustLayout() {
-            if (window.innerWidth <= 768) {
-                // Modo celular/tablet
-                iframe1.style.width = '100%';
-                iframe1.style.height = '50%';
-                iframe2.style.width = '100%';
-                iframe2.style.height = '50%';
-                iframe3.style.display = 'none';
-                toggleIframe3Button.style.display = 'none';
-                document.getElementById('container').classList.remove('horizontal-split');
-            } else {
-                // Modo desktop
-                iframe1.style.height = '100%';
-                if (iframe2.style.display === 'block') {
-                    iframe1.style.width = '50%';
-                    iframe2.style.width = '50%';
-                    iframe3.style.display = 'none';
-                    toggleIframe3Button.style.display = 'none';
-                    document.getElementById('container').classList.remove('horizontal-split');
-                } else if (iframe3.style.display === 'block') {
-                    iframe1.style.width = '50%';
-                    iframe3.style.width = '50%';
-                    toggleIframe3Button.style.display = 'block';
-                    document.getElementById('container').classList.add('horizontal-split');
-                } else {
-                    iframe1.style.width = '100%';
-                    toggleIframe3Button.style.display = 'block';
-                    document.getElementById('container').classList.remove('horizontal-split');
-                }
-            }
-        }
-
-        window.addEventListener('resize', adjustLayout);
-        adjustLayout();
-    </script>
 </body>
 </html>
