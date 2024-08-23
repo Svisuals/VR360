@@ -26,6 +26,8 @@
             width: 100%;
             height: calc(100% - 40px); /* Reduce la altura para hacer espacio para el botón */
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
         a-scene {
             width: 100%;
@@ -41,9 +43,6 @@
             padding: 10px;
             border-radius: 5px;
         }
-        #image-buttons, #compare-buttons {
-            margin-bottom: 10px;
-        }
         button {
             margin: 5px;
             padding: 10px;
@@ -54,8 +53,8 @@
             cursor: pointer;
         }
         #toggle-btn {
-            position: absolute;
-            top: 0;
+            position: fixed;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
@@ -121,6 +120,7 @@
     </div>
 
     <script>
+        // Inicializa el componente de zoom
         AFRAME.registerComponent('zoom-controls', {
             schema: {
                 min: {type: 'number', default: 30},
@@ -152,6 +152,7 @@
 
         document.querySelector('a-camera').setAttribute('zoom-controls', '');
 
+        // Código para manejar las imágenes
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
@@ -199,30 +200,32 @@
             toggleBtn.addEventListener('click', () => {
                 split = !split;
                 if (split) {
-                    document.querySelector('#imagen360-left').classList.add('split-left');
-                    document.querySelector('#imagen360-right').classList.add('split-right');
-                    document.querySelector('#aframe-scene').classList.remove('full-view');
+                    document.querySelector('#aframe-scene').style.display = 'flex';
+                    document.querySelector('#imagen360-left').style.width = '50%';
+                    document.querySelector('#imagen360-right').style.width = '50%';
+                    document.querySelector('#imagen360-left').style.float = 'left';
+                    document.querySelector('#imagen360-right').style.float = 'right';
                     toggleBtn.textContent = 'Unir';
                 } else {
-                    document.querySelector('#imagen360-left').classList.remove('split-left');
-                    document.querySelector('#imagen360-right').classList.remove('split-right');
-                    document.querySelector('#aframe-scene').classList.add('full-view');
+                    document.querySelector('#aframe-scene').style.display = 'block';
+                    document.querySelector('#imagen360-left').style.width = '100%';
+                    document.querySelector('#imagen360-right').style.display = 'none';
                     toggleBtn.textContent = 'Dividir';
                 }
             });
         });
 
-        // Adjust layout based on screen size
+        // Ajustar la disposición según el tamaño de la pantalla
         window.addEventListener('resize', () => {
             const sceneEl = document.querySelector('#aframe-scene');
             if (window.innerWidth < 768) {
-                sceneEl.classList.remove('full-view');
-                document.querySelector('#imagen360-left').classList.add('full-view');
-                document.querySelector('#imagen360-right').classList.add('full-view');
+                sceneEl.style.flexDirection = 'column';
+                document.querySelector('#imagen360-left').style.width = '100%';
+                document.querySelector('#imagen360-right').style.width = '100%';
             } else {
-                sceneEl.classList.remove('full-view');
-                document.querySelector('#imagen360-left').classList.remove('full-view');
-                document.querySelector('#imagen360-right').classList.remove('full-view');
+                sceneEl.style.flexDirection = 'row';
+                document.querySelector('#imagen360-left').style.width = '50%';
+                document.querySelector('#imagen360-right').style.width = '50%';
             }
         });
     </script>
