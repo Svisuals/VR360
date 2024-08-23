@@ -14,15 +14,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.0/build/panolens.min.js"></script>
     <script>
-        // Configuración del visor 360
-        const panorama = new PANOLENS.ImagePanorama('image1.JPG');
-        const viewer = new PANOLENS.Viewer({ container: document.querySelector('#panorama') });
+        document.addEventListener('DOMContentLoaded', () => {
+            const panorama = new PANOLENS.ImagePanorama('https://cdn.jsdelivr.net/npm/panolens@0.11.0/examples/360/texture.jpg');
+            const viewer = new PANOLENS.Viewer({ container: document.querySelector('#panorama') });
 
-        viewer.add(panorama);
+            viewer.add(panorama);
 
-        // Añadir un evento para comprobar si la imagen se ha cargado
-        panorama.addEventListener('enter-fade', () => {
-            console.log('La imagen panorámica se ha cargado correctamente');
+            panorama.addEventListener('enter-fade', () => {
+                console.log('La imagen panorámica se ha cargado correctamente');
+            });
         });
     </script>
 </body>
