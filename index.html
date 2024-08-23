@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor 360° con Modo VR</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-zoom/dist/aframe-zoom.min.js"></script>
+    <script src="https://unpkg.com/aframe-gesture-detector/dist/aframe-gesture-detector.min.js"></script>
+    <script src="https://unpkg.com/aframe-orbit-controls/dist/aframe-orbit-controls.min.js"></script>
     <style>
         body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evita barras de desplazamiento */
+        }
+        a-scene {
             width: 100%;
             height: 100%;
         }
@@ -18,12 +26,14 @@
 
     <!-- Contenedor de la escena A-Frame -->
     <a-scene>
-        <!-- Entidad de la cámara con controles habilitados -->
+        <!-- Entidad de la cámara con controles habilitados y zoom -->
         <a-camera 
-            wasd-controls="enabled: true; fly: true"  <!-- Permite moverse en todas las direcciones -->
-            look-controls="pointerLockEnabled: true"  <!-- Habilita el control de mirada -->
-            zoom="min: 0.5; max: 5"                   <!-- Habilita zoom con límites -->
-            mouse-cursor>                             <!-- Permite usar el cursor del mouse -->
+            wasd-controls="enabled: true; fly: true"
+            look-controls="pointerLockEnabled: true"
+            zoom="min: 0.5; max: 5"
+            mouse-cursor
+            gesture-detector
+            orbit-controls>
         </a-camera>
 
         <!-- Imagen 360° -->
