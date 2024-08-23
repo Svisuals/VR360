@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparar Imágenes 360°</title>
+    <title>Visor 360° con Modo VR y Zoom</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
@@ -15,21 +15,7 @@
             height: 100%;
             overflow: hidden;
         }
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column; /* Default vertical split for mobile */
-        }
-        .scene-container {
-            flex: 1;
-            position: relative;
-        }
-        .hidden {
-            display: none;
-        }
-        button {
+        #controls {
             position: fixed;
             top: 10px;
             left: 10px;
@@ -37,46 +23,71 @@
             background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 10px;
+            border-radius: 5px;
+        }
+        #image-buttons, #compare-buttons {
+            margin-bottom: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            color: white;
+            background-color: #007BFF;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
-        @media (min-width: 768px) {
-            #container {
-                flex-direction: row; /* Horizontal split for PC */
-            }
+        #toggle-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .image-panel {
+            width: 50%;
+            height: 100%;
+            float: left;
         }
     </style>
 </head>
 <body>
 
-    <button id="toggleView">Toggle View</button>
+    <a-scene id="scene">
+        <!-- Cámara con controles táctiles -->
+        <a-camera id="camera"
+            position="0 1.6 0"
+            touch-controls
+            look-controls>
+        </a-camera>
 
-    <div id="container">
-        <!-- Vista 1 -->
-        <div id="scene1" class="scene-container">
-            <a-scene>
-                <a-camera id="camera1"
-                    position="0 1.6 0"
-                    touch-controls
-                    look-controls>
-                </a-camera>
-                <a-sky id="sky1" src="images/image1.JPG"></a-sky>
-            </a-scene>
+        <!-- Imágenes 360° -->
+        <a-sky id="imagen360-left" src="images/image1.JPG" class="image-panel"></a-sky>
+        <a-sky id="imagen360-right" src="images/image2.JPG" class="image-panel"></a-sky>
+
+        <a-assets>
+            <!-- Las imágenes se cargarán dinámicamente -->
+        </a-assets>
+    </a-scene>
+
+    <div id="controls">
+        <div id="compare-buttons">
+            <h3>Imagen para Comparar</h3>
+            <button data-side="left">Izquierda</button>
+            <button data-side="right">Derecha</button>
         </div>
-
-        <!-- Vista 2 -->
-        <div id="scene2" class="scene-container hidden">
-            <a-scene>
-                <a-camera id="camera2"
-                    position="0 1.6 0"
-                    touch-controls
-                    look-controls>
-                </a-camera>
-                <a-sky id="sky2" src="images/image2.JPG"></a-sky>
-            </a-scene>
+        <div id="image-buttons">
+            <h3>Seleccionar Imagen</h3>
         </div>
     </div>
+
+    <button id="toggle-btn">Dividir</button>
 
     <script>
         AFRAME.registerComponent('zoom-controls', {
@@ -108,17 +119,87 @@
             }
         });
 
-        document.querySelectorAll('a-camera').forEach(camera => {
-            camera.setAttribute('zoom-controls', '');
+        document.querySelector('a-camera').setAttribute('zoom-controls', '');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = [
+                'image1.JPG',
+                'image2.JPG',
+                'image3.JPG'
+            ];
+
+            const imageButtonsDiv = document.getElementById('image-buttons');
+            const compareButtonsDiv = document.getElementById('compare-buttons');
+
+            images.forEach(image => {
+                const button = document.createElement('button');
+                button.textContent = image;
+                button.onclick = () => loadImage(image);
+                imageButtonsDiv.appendChild(button);
+            });
+
+            compareButtonsDiv.querySelectorAll('button').forEach(button => {
+                button.onclick = function() {
+                    const side = this.getAttribute('data-side');
+                    if (side === 'left') {
+                        loadImage('image1.JPG', 'left'); // Cambia a la imagen deseada
+                    } else if (side === 'right') {
+                        loadImage('image2.JPG', 'right'); // Cambia a la imagen deseada
+                    }
+                };
+            });
+
+            function loadImage(imageName, side) {
+                if (side === 'left') {
+                    document.querySelector('#imagen360-left').setAttribute('src', `images/${imageName}`);
+                } else if (side === 'right') {
+                    document.querySelector('#imagen360-right').setAttribute('src', `images/${imageName}`);
+                } else {
+                    // Se usa por defecto en ambas mitades si no se especifica un lado
+                    document.querySelector('#imagen360-left').setAttribute('src', `images/${imageName}`);
+                    document.querySelector('#imagen360-right').setAttribute('src', `images/${imageName}`);
+                }
+            }
+
+            // Toggle button for splitting the view
+            const toggleBtn = document.getElementById('toggle-btn');
+            let split = false;
+
+            toggleBtn.addEventListener('click', () => {
+                split = !split;
+                if (split) {
+                    document.querySelector('#scene').setAttribute('split', '');
+                    toggleBtn.textContent = 'Unir';
+                } else {
+                    document.querySelector('#scene').removeAttribute('split');
+                    toggleBtn.textContent = 'Dividir';
+                }
+            });
         });
 
-        document.getElementById('toggleView').addEventListener('click', function() {
-            const scene1 = document.getElementById('scene1');
-            const scene2 = document.getElementById('scene2');
-            const isScene1Visible = !scene1.classList.contains('hidden');
+        // Add the split component to handle canvas splitting
+        AFRAME.registerComponent('split', {
+            init: function () {
+                const sceneEl = this.el;
+                const isMobile = window.innerWidth < 768;
+                const canvas = sceneEl.renderer.domElement;
 
-            scene1.classList.toggle('hidden', !isScene1Visible);
-            scene2.classList.toggle('hidden', isScene1Visible);
+                if (isMobile) {
+                    sceneEl.style.display = 'flex';
+                    sceneEl.style.flexDirection = 'column';
+                } else {
+                    sceneEl.style.display = 'flex';
+                    sceneEl.style.flexDirection = 'row';
+                }
+
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth < 768) {
+                        sceneEl.style.flexDirection = 'column';
+                    } else {
+                        sceneEl.style.flexDirection = 'row';
+                    }
+                });
+            }
         });
     </script>
 
