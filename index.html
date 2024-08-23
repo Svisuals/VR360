@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor 360° con Modo VR y Zoom</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -22,14 +23,11 @@
 <body>
 
     <a-scene>
-        <!-- Cámara con controles de mirada -->
-        <a-camera id="camera"
-            position="0 1.6 0"
-            look-controls>
-        </a-camera>
+        <!-- Cámara con controles personalizados -->
+        <a-camera id="camera" look-controls="enabled: false"></a-camera>
 
         <!-- Imagen 360° -->
-        <a-sky src="360.JPG"></a-sky>
+        <a-sky id="imagen360" src="360.JPG"></a-sky>
 
         <a-assets>
             <img id="imagen360" src="360.JPG">
@@ -37,38 +35,26 @@
     </a-scene>
 
     <script>
-        // Configurar los controles de zoom con la rueda del mouse y gestos táctiles
-        AFRAME.registerComponent('zoom-controls', {
-            schema: {
-                min: {type: 'number', default: 30},
-                max: {type: 'number', default: 90}
-            },
+        AFRAME.registerComponent('custom-touch-controls', {
             init: function () {
-                this.cameraEl = this.el.sceneEl.camera.el;
-                this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-                this.setupPinchZoom();
+                this.camera = this.el.sceneEl.camera.el;
+                this.setupHammer();
             },
-            onWheel: function (event) {
-                const cameraComponent = this.cameraEl.getAttribute('camera');
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-                this.cameraEl.setAttribute('camera', 'fov', newFov);
-            },
-            setupPinchZoom: function () {
+            setupHammer: function () {
                 const canvas = this.el.sceneEl.renderer.domElement;
                 const hammer = new Hammer.Manager(canvas);
-                hammer.add(new Hammer.Pinch());
+                hammer.add(new Hammer.Pan({ direction: Hammer.DIRECTION_ALL, threshold: 0 }));
 
-                hammer.on('pinch', (event) => {
-                    const cameraComponent = this.cameraEl.getAttribute('camera');
-                    let newFov = cameraComponent.fov / event.scale;
-                    newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
-                    this.cameraEl.setAttribute('camera', 'fov', newFov);
+                hammer.on('pan', (event) => {
+                    const rotation = this.camera.getAttribute('rotation');
+                    rotation.y -= event.deltaX * 0.1;
+                    rotation.x -= event.deltaY * 0.1;
+                    this.camera.setAttribute('rotation', rotation);
                 });
             }
         });
 
-        // Añadir el componente a la cámara
-        document.querySelector('a-camera').setAttribute('zoom-controls', '');
+        document.querySelector('a-camera').setAttribute('custom-touch-controls', '');
     </script>
 
 </body>
