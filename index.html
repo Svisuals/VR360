@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
+    <title>Visor 360° con Panolens.js</title>
     <script src="https://cdn.jsdelivr.net/npm/panolens@0.11.0/build/panolens.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
@@ -17,7 +17,6 @@
         #panolens-container {
             width: 100%;
             height: 100%;
-            position: relative;
         }
         #controls {
             position: fixed;
@@ -58,11 +57,12 @@
         // Função para carregar imagem 360°
         function cargarImagen360(imagen) {
             const panorama = new PANOLENS.ImagePanorama(`images/${imagen}`);
+            viewer.clear(); // Limpa panoramas anteriores
             viewer.add(panorama);
             viewer.setPanorama(panorama);
         }
 
-        // Inicializa a imagem padrão
+        // Adiciona botões para trocar imagens
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
