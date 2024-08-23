@@ -1,36 +1,86 @@
-AFRAME.registerComponent('zoom-controls', {
-    schema: {
-        min: {type: 'number', default: 30},
-        max: {type: 'number', default: 90}
-    },
-    init: function () {
-        this.cameraEl = this.el.sceneEl.camera.el;
-        this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-        this.setupPinchZoom();
-        // Agregar este código para permitir el movimiento en vertical con dispositivos móviles
-        this.el.sceneEl.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-        });
-        this.el.sceneEl.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 1 && e.target.classList.contains('a-scene')) {
-                e.preventDefault();
-            }
-        });
-    },
-    onWheel: function (event) {
-        const cameraComponent = this.cameraEl.getAttribute('camera');
-        const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-        this.cameraEl.setAttribute('camera', 'fov', newFov);
-    },
-    setupPinchZoom: function () {
-        const canvas = this.el.sceneEl.renderer.domElement;
-        const hammer = new Hammer(canvas);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización 360°</title>
 
-        hammer.on('pinch', (event) => {
-            const cameraComponent = this.cameraEl.getAttribute('camera');
-            let newFov = cameraComponent.fov / event.scale;
-            newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
-            this.cameraEl.setAttribute('camera', 'fov', newFov);
-        });
-    }
-});
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        a-scene {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+
+    <a-scene>
+        <!-- Cámara con controles táctiles -->
+        <a-camera id="camera"
+            position="0 1.6 0"
+            touch-controls
+            look-controls>
+        </a-camera>
+
+        <!-- Imagen 360° -->
+        <a-sky id="imagen360" src="360.JPG"></a-sky>
+
+        <a-assets>
+            <img id="imagen360" src="360.JPG">
+        </a-assets>
+
+        <!-- Componente de zoom -->
+        <script>
+            AFRAME.registerComponent('zoom-controls', {
+                schema: {
+                    min: {type: 'number', default: 30},
+                    max: {type: 'number', default: 90}
+                },
+                init: function () {
+                    this.cameraEl = this.el.sceneEl.camera.el;
+                    this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
+                    this.setupPinchZoom();
+                    // Agregar este código para permitir el movimiento en vertical con dispositivos móviles
+                    this.el.sceneEl.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                    });
+                    this.el.sceneEl.addEventListener('touchmove', (e) => {
+                        if (e.touches.length === 1 && e.target.classList.contains('a-scene')) {
+                            e.preventDefault();
+                        }
+                    });
+                },
+                onWheel: function (event) {
+                    const cameraComponent = this.cameraEl.getAttribute('camera');
+                    const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
+                    this.cameraEl.setAttribute('camera', 'fov', newFov);
+                },
+                setupPinchZoom: function () {
+                    const canvas = this.el.sceneEl.renderer.domElement;
+                    const hammer = new Hammer(canvas);
+
+                    hammer.on('pinch', (event) => {
+                        const cameraComponent = this.cameraEl.getAttribute('camera');
+                        let newFov = cameraComponent.fov / event.scale;
+                        newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
+                        this.cameraEl.setAttribute('camera', 'fov', newFov);
+                    });
+                }
+            });
+
+            // Añadir el componente a la cámara
+            document.querySelector('a-camera').setAttribute('zoom-controls', '');
+        </script>
+    </a-scene>
+
+</body>
+</html>
