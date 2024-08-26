@@ -45,7 +45,6 @@
         const photoSelector2 = document.querySelector('#photoSelector2');
         const switchViewBtn = document.querySelector('#switchViewBtn');
         const vrBtn = document.querySelector('#vrBtn');
-        const menu2 = document.querySelector('#menu2');
         let isDualView = false;
 
         function loadPanorama(photoUrl1, photoUrl2) {
@@ -55,8 +54,8 @@
             if (isDualView) {
                 // Adiciona dois panoramas
                 scene.innerHTML = `
-                    <a-sky id="sky1" src="${photoUrl1}" rotation="0 0 0"></a-sky>
-                    <a-sky id="sky2" src="${photoUrl2}" rotation="0 180 0"></a-sky>
+                    <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
+                    <a-sky src="${photoUrl2}" rotation="0 180 0"></a-sky>
                 `;
             } else {
                 // Adiciona um único panorama
