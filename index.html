@@ -60,6 +60,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +166,7 @@
 
         // Toggle mode between single and dual view
         document.getElementById('toggle-mode').addEventListener('click', function() {
+            const mainContainer = document.getElementById('main-container');
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
             const modeButton = document.getElementById('toggle-mode');
@@ -170,18 +174,16 @@
 
             if (isDualMode) {
                 // Switch to single view
-                document.getElementById('main-container').style.flexDirection = 'row';
+                mainContainer.style.flexDirection = 'row';
                 scene1.classList.remove('hidden');
                 scene2.classList.add('hidden');
                 modeButton.textContent = 'Modo Dúo';
-                document.getElementById('controls').style.display = 'block';
             } else {
                 // Switch to dual view
-                document.getElementById('main-container').style.flexDirection = 'row';
+                mainContainer.style.flexDirection = 'row';
                 scene1.classList.remove('hidden');
                 scene2.classList.remove('hidden');
                 modeButton.textContent = 'Modo Único';
-                document.getElementById('controls').style.display = 'none';
             }
         });
     </script>
