@@ -6,100 +6,19 @@
     <title>Visor 360°</title>
     <style>
         body { margin: 0; overflow: hidden; }
-        #menu1, #menu2 { position: absolute; top: 10px; z-index: 1000; }
-        #menu1 { left: 10px; }
-        #menu2 { left: 150px; display: none; }
-        #switchViewBtn { position: absolute; top: 10px; left: 290px; z-index: 1000; }
-        #vrBtn { position: absolute; bottom: 10px; right: 10px; z-index: 1000; }
         #scene { width: 100vw; height: 100vh; }
-        .dual-view #scene { display: flex; }
-        .dual-view #menu1 { left: 10px; display: block; }
-        .dual-view #menu2 { left: calc(50% + 10px); display: block; }
     </style>
 </head>
 <body>
-    <div id="menu1">
-        <select id="photoSelector1">
-            <option value="images/image1.JPG">Imagem 1</option>
-            <option value="images/image2.JPG">Imagem 2</option>
-            <option value="images/image3.JPG">Imagem 3</option>
-        </select>
-    </div>
-    <div id="menu2">
-        <select id="photoSelector2">
-            <option value="images/image1.JPG">Imagem 1</option>
-            <option value="images/image2.JPG">Imagem 2</option>
-            <option value="images/image3.JPG">Imagem 3</option>
-        </select>
-    </div>
-    <button id="switchViewBtn">Alternar Visualização</button>
-    <button id="vrBtn">VR</button>
-    <a-scene id="scene" embedded>
-        <!-- Visor 360° será adicionado aqui -->
+    <a-scene>
+        <a-sky id="sky" src="images/image1.JPG" rotation="0 0 0"></a-sky>
     </a-scene>
 
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script>
-        const scene = document.querySelector('#scene');
-        const photoSelector1 = document.querySelector('#photoSelector1');
-        const photoSelector2 = document.querySelector('#photoSelector2');
-        const switchViewBtn = document.querySelector('#switchViewBtn');
-        const vrBtn = document.querySelector('#vrBtn');
-        let isDualView = false;
-
-        function loadPanorama(photoUrl1, photoUrl2) {
-            // Limpa o conteúdo da cena
-            scene.innerHTML = '';
-
-            if (isDualView) {
-                // Carrega dois visores
-                scene.innerHTML = `
-                    <a-scene>
-                        <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
-                        <a-sky src="${photoUrl2}" rotation="0 180 0"></a-sky>
-                    </a-scene>`;
-            } else {
-                // Carrega um único visor
-                scene.innerHTML = `
-                    <a-scene>
-                        <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
-                    </a-scene>`;
-            }
-        }
-
-        function toggleView() {
-            isDualView = !isDualView;
-            if (isDualView) {
-                document.body.classList.add('dual-view');
-                loadPanorama(photoSelector1.value, photoSelector2.value);
-            } else {
-                document.body.classList.remove('dual-view');
-                loadPanorama(photoSelector1.value, '');
-            }
-        }
-
-        photoSelector1.addEventListener('change', (event) => {
-            const currentPhoto2 = photoSelector2.value;
-            loadPanorama(event.target.value, isDualView ? currentPhoto2 : '');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Código adicional para manejar eventos o interacciones
         });
-
-        photoSelector2.addEventListener('change', (event) => {
-            if (isDualView) {
-                const currentPhoto1 = photoSelector1.value;
-                loadPanorama(currentPhoto1, event.target.value);
-            }
-        });
-
-        switchViewBtn.addEventListener('click', toggleView);
-
-        vrBtn.addEventListener('click', () => {
-            // Supondo que você deseja iniciar o modo VR
-            // Substitua pelo código apropriado para sua implementação VR
-            alert('Modo VR ativado!');
-        });
-
-        // Carregar a primeira foto por padrão
-        loadPanorama(photoSelector1.value, '');
     </script>
 </body>
 </html>
