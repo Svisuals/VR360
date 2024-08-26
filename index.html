@@ -21,9 +21,10 @@
             height: 100%;
             transition: all 0.3s ease;
             flex-direction: row;
+            /* Inicialmente, apenas um visor é exibido */
         }
-        #scene1, #scene2 {
-            width: 50%;
+        .scene {
+            width: 100%;
             height: 100%;
             flex: 1;
         }
@@ -73,27 +74,23 @@
     </div>
 
     <div id="main-container">
-        <a-scene id="scene1">
-            <!-- Cámara con controles táctiles -->
+        <!-- Visor 360° 1 -->
+        <a-scene id="scene1" class="scene">
             <a-camera id="camera1"
                 position="0 1.6 0"
                 touch-controls
                 look-controls>
             </a-camera>
-
-            <!-- Imagen 360° -->
             <a-sky id="imagen360-1" src="images/image1.JPG"></a-sky>
         </a-scene>
 
-        <a-scene id="scene2">
-            <!-- Cámara con controles táctiles -->
+        <!-- Visor 360° 2 -->
+        <a-scene id="scene2" class="scene">
             <a-camera id="camera2"
                 position="0 1.6 0"
                 touch-controls
                 look-controls>
             </a-camera>
-
-            <!-- Imagen 360° -->
             <a-sky id="imagen360-2" src="images/image1.JPG"></a-sky>
         </a-scene>
     </div>
@@ -173,16 +170,16 @@
 
             if (isDualMode) {
                 // Switch to single view
+                document.getElementById('main-container').style.flexDirection = 'row';
                 scene1.style.width = '100%';
                 scene2.style.display = 'none';
-                document.getElementById('main-container').style.flexDirection = 'row';
                 this.textContent = 'Modo Dúo';
             } else {
                 // Switch to dual view
+                document.getElementById('main-container').style.flexDirection = 'row';
                 scene1.style.width = '50%';
                 scene2.style.width = '50%';
                 scene2.style.display = 'block';
-                document.getElementById('main-container').style.flexDirection = 'row';
                 this.textContent = 'Modo Único';
             }
         });
