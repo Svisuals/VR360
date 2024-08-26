@@ -49,21 +49,21 @@
         const menu2 = document.querySelector('#menu2');
         let isDualView = false;
 
-        function loadPanorama(photoUrl, isFirstView) {
+        function loadPanorama(photoUrl1, photoUrl2) {
             // Limpa o conteúdo da cena
             scene.innerHTML = '';
-            
+
             if (isDualView) {
                 // Carrega dois visores
-                const panorama1 = new PANOLENS.ImagePanorama(photoSelector1.value);
-                const panorama2 = new PANOLENS.ImagePanorama(photoSelector2.value);
+                const panorama1 = new PANOLENS.ImagePanorama(photoUrl1);
+                const panorama2 = new PANOLENS.ImagePanorama(photoUrl2);
                 const viewer = new PANOLENS.Viewer();
                 viewer.add(panorama1);
                 viewer.add(panorama2);
                 scene.appendChild(viewer.container);
             } else {
                 // Carrega um único visor
-                const panorama = new PANOLENS.ImagePanorama(photoUrl);
+                const panorama = new PANOLENS.ImagePanorama(photoUrl1);
                 const viewer = new PANOLENS.Viewer();
                 viewer.add(panorama);
                 scene.appendChild(viewer.container);
@@ -81,21 +81,23 @@
                     </a-scene>`;
             } else {
                 document.body.classList.remove('dual-view');
-                loadPanorama(photoSelector1.value, false);
+                loadPanorama(photoSelector1.value, '');
             }
         }
 
         photoSelector1.addEventListener('change', (event) => {
             if (!isDualView) {
-                loadPanorama(event.target.value, false);
+                loadPanorama(event.target.value, '');
             } else {
-                toggleView();
+                const currentPhoto2 = photoSelector2.value;
+                loadPanorama(event.target.value, currentPhoto2);
             }
         });
 
         photoSelector2.addEventListener('change', (event) => {
             if (isDualView) {
-                toggleView();
+                const currentPhoto1 = photoSelector1.value;
+                loadPanorama(currentPhoto1, event.target.value);
             }
         });
 
@@ -108,7 +110,7 @@
         });
 
         // Carregar a primeira foto por padrão
-        loadPanorama(photoSelector1.value, false);
+        loadPanorama(photoSelector1.value, '');
     </script>
 </body>
 </html>
