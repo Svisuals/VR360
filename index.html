@@ -12,9 +12,9 @@
         #switchViewBtn { position: absolute; top: 10px; left: 290px; z-index: 1000; }
         #vrBtn { position: absolute; bottom: 10px; right: 10px; z-index: 1000; }
         #scene { width: 100vw; height: 100vh; }
+        .dual-view #scene { display: flex; }
         .dual-view #menu1 { left: 10px; display: block; }
         .dual-view #menu2 { left: calc(50% + 10px); display: block; }
-        .dual-view #scene { display: flex; }
     </style>
 </head>
 <body>
@@ -52,16 +52,18 @@
             scene.innerHTML = '';
 
             if (isDualView) {
-                // Adiciona dois panoramas
+                // Carrega dois visores
                 scene.innerHTML = `
-                    <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
-                    <a-sky src="${photoUrl2}" rotation="0 180 0"></a-sky>
-                `;
+                    <a-scene>
+                        <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
+                        <a-sky src="${photoUrl2}" rotation="0 180 0"></a-sky>
+                    </a-scene>`;
             } else {
-                // Adiciona um único panorama
+                // Carrega um único visor
                 scene.innerHTML = `
-                    <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
-                `;
+                    <a-scene>
+                        <a-sky src="${photoUrl1}" rotation="0 0 0"></a-sky>
+                    </a-scene>`;
             }
         }
 
@@ -77,12 +79,8 @@
         }
 
         photoSelector1.addEventListener('change', (event) => {
-            if (!isDualView) {
-                loadPanorama(event.target.value, '');
-            } else {
-                const currentPhoto2 = photoSelector2.value;
-                loadPanorama(event.target.value, currentPhoto2);
-            }
+            const currentPhoto2 = photoSelector2.value;
+            loadPanorama(event.target.value, isDualView ? currentPhoto2 : '');
         });
 
         photoSelector2.addEventListener('change', (event) => {
