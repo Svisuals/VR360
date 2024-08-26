@@ -8,13 +8,11 @@
         body { margin: 0; overflow: hidden; }
         #menu1, #menu2 { position: absolute; top: 10px; z-index: 1000; }
         #menu1 { left: 10px; }
-        #menu2 { left: 150px; display: none; }
-        #switchViewBtn { position: absolute; top: 10px; left: 290px; z-index: 1000; }
+        #menu2 { left: calc(50% + 10px); display: none; }
+        #switchViewBtn { position: absolute; top: 10px; left: calc(50% + 110px); z-index: 1000; }
         #vrBtn { position: absolute; bottom: 10px; right: 10px; z-index: 1000; }
         #scene { width: 100vw; height: 100vh; }
         .dual-view #scene { display: flex; }
-        .dual-view #menu1 { left: 10px; display: block; }
-        .dual-view #menu2 { left: calc(50% + 10px); display: block; }
     </style>
 </head>
 <body>
@@ -34,54 +32,67 @@
     </div>
     <button id="switchViewBtn">Alternar Visualização</button>
     <button id="vrBtn">VR</button>
-    <a-scene id="scene" embedded>
-        <!-- Visor 360° será adicionado aqui -->
-    </a-scene>
+    <div id="scene"></div>
 
     <script src="https://cdn.rawgit.com/pchen66/panolens.js/master/build/panolens.min.js"></script>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script>
-        const scene = document.querySelector('#scene');
+        const sceneContainer = document.querySelector('#scene');
         const photoSelector1 = document.querySelector('#photoSelector1');
         const photoSelector2 = document.querySelector('#photoSelector2');
         const switchViewBtn = document.querySelector('#switchViewBtn');
         const vrBtn = document.querySelector('#vrBtn');
         const menu2 = document.querySelector('#menu2');
         let isDualView = false;
+        let viewer1, viewer2;
+
+        function initializeViewer() {
+            viewer1 = new PANOLENS.Viewer({ container: sceneContainer });
+            viewer2 = new PANOLENS.Viewer({ container: sceneContainer });
+        }
 
         function loadPanorama(photoUrl1, photoUrl2) {
-            // Limpa o conteúdo da cena
-            scene.innerHTML = '';
+            sceneContainer.innerHTML = '';
 
             if (isDualView) {
-                // Carrega dois visores
+                // Carregar dois visores 360°
                 const panorama1 = new PANOLENS.ImagePanorama(photoUrl1);
                 const panorama2 = new PANOLENS.ImagePanorama(photoUrl2);
-                const viewer = new PANOLENS.Viewer();
-                viewer.add(panorama1);
-                viewer.add(panorama2);
-                scene.appendChild(viewer.container);
+
+                viewer1 = new PANOLENS.Viewer({ container: sceneContainer });
+                viewer2 = new PANOLENS.Viewer({ container: sceneContainer });
+
+                viewer1.add(panorama1);
+                viewer2.add(panorama2);
+
+                sceneContainer.appendChild(viewer1.container);
+                sceneContainer.appendChild(viewer2.container);
+
+                viewer1.container.style.width = '50%';
+                viewer2.container.style.width = '50%';
+                viewer1.container.style.float = 'left';
+                viewer2.container.style.float = 'left';
             } else {
-                // Carrega um único visor
+                // Carregar um único visor 360°
                 const panorama = new PANOLENS.ImagePanorama(photoUrl1);
-                const viewer = new PANOLENS.Viewer();
-                viewer.add(panorama);
-                scene.appendChild(viewer.container);
+                viewer1 = new PANOLENS.Viewer({ container: sceneContainer });
+                viewer1.add(panorama);
+
+                sceneContainer.appendChild(viewer1.container);
             }
         }
 
         function toggleView() {
             isDualView = !isDualView;
+
             if (isDualView) {
                 document.body.classList.add('dual-view');
-                scene.innerHTML = `
-                    <a-scene>
-                        <a-sky id="sky1" src="${photoSelector1.value}" rotation="0 0 0"></a-sky>
-                        <a-sky id="sky2" src="${photoSelector2.value}" rotation="0 180 0"></a-sky>
-                    </a-scene>`;
+                loadPanorama(photoSelector1.value, photoSelector2.value);
+                menu2.style.display = 'block';
             } else {
                 document.body.classList.remove('dual-view');
                 loadPanorama(photoSelector1.value, '');
+                menu2.style.display = 'none';
             }
         }
 
@@ -104,10 +115,11 @@
         switchViewBtn.addEventListener('click', toggleView);
 
         vrBtn.addEventListener('click', () => {
-            // Supondo que você deseja iniciar o modo VR
-            // Substitua pelo código apropriado para sua implementação VR
             alert('Modo VR ativado!');
         });
+
+        // Inicializar o visualizador
+        initializeViewer();
 
         // Carregar a primeira foto por padrão
         loadPanorama(photoSelector1.value, '');
