@@ -15,6 +15,11 @@
             height: 100%;
             overflow: hidden;
         }
+        #main-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
         a-scene {
             width: 100%;
             height: 100%;
@@ -66,6 +71,7 @@
         }
         .split .visor {
             flex: 1;
+            width: 50%;
         }
     </style>
 </head>
@@ -173,19 +179,23 @@
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
             const modeButton = document.getElementById('toggle-mode');
+            const controls = document.getElementById('controls');
             const isDualMode = !scene1.classList.contains('hidden');
 
             if (isDualMode) {
+                // Switch to single view
                 scene1.classList.remove('hidden');
                 scene2.classList.add('hidden');
                 modeButton.textContent = 'Modo Dúo';
-                document.getElementById('controls').style.display = 'block';
+                controls.style.display = 'block';
+                document.getElementById('image-select').style.width = '100%';
             } else {
+                // Switch to dual view
                 scene1.classList.add('hidden');
                 scene2.classList.remove('hidden');
                 modeButton.textContent = 'Modo Único';
-                document.getElementById('controls').style.display = 'none';
-                document.getElementById('image-select').value = 'image1.JPG';
+                controls.style.display = 'none';
+                document.getElementById('image-select').style.width = 'auto';
             }
         });
     </script>
