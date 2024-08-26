@@ -1,122 +1,111 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <title>Visor 360°</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        a-scene {
-            width: 100%;
-            height: 100%;
-        }
-        #controls {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        body { margin: 0; overflow: hidden; }
+        #menu1, #menu2 { position: absolute; top: 10px; z-index: 1000; }
+        #menu1 { left: 10px; }
+        #menu2 { left: 150px; }
+        #switchViewBtn { position: absolute; top: 10px; left: 290px; z-index: 1000; }
+        #vrBtn { position: absolute; bottom: 10px; right: 10px; z-index: 1000; }
     </style>
 </head>
 <body>
-
-    <a-scene>
-        <!-- Cámara con controles táctiles -->
-        <a-camera id="camera"
-            position="0 1.6 0"
-            touch-controls
-            look-controls>
-        </a-camera>
-
-        <!-- Imagen 360° -->
-        <a-sky id="imagen360" src="images/image1.JPG"></a-sky>
-
-        <a-assets>
-            <!-- Las imágenes se cargarán dinámicamente -->
-        </a-assets>
+    <div id="menu1">
+        <select id="photoSelector1">
+            <option value="images/image1.JPG">Imagem 1</option>
+            <option value="images/image2.JPG">Imagem 2</option>
+            <option value="images/image3.JPG">Imagem 3</option>
+        </select>
+    </div>
+    <div id="menu2">
+        <select id="photoSelector2">
+            <option value="images/image1.JPG">Imagem 1</option>
+            <option value="images/image2.JPG">Imagem 2</option>
+            <option value="images/image3.JPG">Imagem 3</option>
+        </select>
+    </div>
+    <button id="switchViewBtn">Alternar Visualização</button>
+    <button id="vrBtn">VR</button>
+    <a-scene id="scene" embedded>
+        <!-- Visor 360° será adicionado aqui -->
     </a-scene>
 
-    <div id="controls">
-        <div id="image-buttons"></div>
-    </div>
-
+    <script src="https://cdn.rawgit.com/pchen66/panolens.js/master/build/panolens.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script>
-        AFRAME.registerComponent('zoom-controls', {
-            schema: {
-                min: {type: 'number', default: 30},
-                max: {type: 'number', default: 90}
-            },
-            init: function () {
-                this.cameraEl = this.el.sceneEl.camera.el;
-                this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-                this.setupPinchZoom();
-            },
-            onWheel: function (event) {
-                const cameraComponent = this.cameraEl.getAttribute('camera');
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-                this.cameraEl.setAttribute('camera', 'fov', newFov);
-            },
-            setupPinchZoom: function () {
-                const canvas = this.el.sceneEl.renderer.domElement;
-                const hammer = new Hammer.Manager(canvas);
-                hammer.add(new Hammer.Pinch());
+        const scene = document.querySelector('#scene');
+        const photoSelector1 = document.querySelector('#photoSelector1');
+        const photoSelector2 = document.querySelector('#photoSelector2');
+        const switchViewBtn = document.querySelector('#switchViewBtn');
+        const vrBtn = document.querySelector('#vrBtn');
+        let isDualView = false;
 
-                hammer.on('pinch', (event) => {
-                    const cameraComponent = this.cameraEl.getAttribute('camera');
-                    let newFov = cameraComponent.fov / event.scale;
-                    newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
-                    this.cameraEl.setAttribute('camera', 'fov', newFov);
-                });
+        function loadPanorama(photoUrl, isFirstView) {
+            // Limpa o conteúdo da cena
+            if (scene.hasChildNodes()) {
+                scene.innerHTML = '';
+            }
+            
+            if (isDualView) {
+                // Carrega dois visores
+                const panorama1 = new PANOLENS.ImagePanorama(photoSelector1.value);
+                const panorama2 = new PANOLENS.ImagePanorama(photoSelector2.value);
+                const viewer = new PANOLENS.Viewer();
+                viewer.add(panorama1);
+                viewer.add(panorama2);
+                scene.appendChild(viewer.container);
+            } else {
+                // Carrega um único visor
+                const panorama = new PANOLENS.ImagePanorama(photoUrl);
+                const viewer = new PANOLENS.Viewer();
+                viewer.add(panorama);
+                scene.appendChild(viewer.container);
+            }
+        }
+
+        function toggleView() {
+            isDualView = !isDualView;
+            if (isDualView) {
+                scene.innerHTML = `
+                    <a-scene>
+                        <a-sky id="sky1" src="${photoSelector1.value}" rotation="0 -90 0"></a-sky>
+                        <a-sky id="sky2" src="${photoSelector2.value}" rotation="0 90 0"></a-sky>
+                    </a-scene>`;
+            } else {
+                loadPanorama(photoSelector1.value, false);
+            }
+        }
+
+        photoSelector1.addEventListener('change', (event) => {
+            if (isDualView) {
+                toggleView();
+            } else {
+                loadPanorama(event.target.value, false);
             }
         });
 
-        // Añadir el componente a la cámara
-        document.querySelector('a-camera').setAttribute('zoom-controls', '');
-
-        // JavaScript para manejar múltiples imágenes
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = [
-                'image1.JPG',
-                'image2.JPG',
-                'image3.JPG'
-            ];
-
-            const controlsDiv = document.getElementById('image-buttons');
-
-            images.forEach(image => {
-                const button = document.createElement('button');
-                button.textContent = image;
-                button.onclick = () => cambiarImagen360(image);
-                controlsDiv.appendChild(button);
-            });
-
-            function cambiarImagen360(nombreImagen) {
-                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
+        photoSelector2.addEventListener('change', (event) => {
+            if (isDualView) {
+                toggleView();
             }
         });
+
+        switchViewBtn.addEventListener('click', () => {
+            toggleView();
+        });
+
+        vrBtn.addEventListener('click', () => {
+            // Supondo que você deseja iniciar o modo VR
+            // Substitua pelo código apropriado para sua implementação VR
+            alert('Modo VR ativado!');
+        });
+
+        // Carregar a primeira foto por padrão
+        loadPanorama(photoSelector1.value, false);
     </script>
-
 </body>
 </html>
