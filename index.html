@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
+    <title>Visor 360° con Modo Dúo</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -17,36 +16,24 @@
         }
         #main-container {
             display: flex;
-            width: 100;
+            width: 100%;
             height: 100%;
-            transition: all 0.3s ease;
         }
-        .scene {
-            width: 50%;
+        a-scene {
+            width: 100%;
             height: 100%;
-            flex: 1;
-            transition: width 0.3s ease;
         }
-        #scene2 {
-            display: none;
-        }
-        #controls, #mode-toggle {
+        #controls {
             position: fixed;
             top: 10px;
+            right: 10px;
             z-index: 10;
             background: rgba(0, 0, 0, 0.5);
             color: white;
             padding: 10px;
             border-radius: 5px;
         }
-        #controls {
-            left: 10px;
-        }
-        #mode-toggle {
-            right: 10px;
-            left: auto;
-        }
-        select, button {
+        button {
             margin: 5px;
             padding: 10px;
             color: white;
@@ -58,68 +45,42 @@
     </style>
 </head>
 <body>
-    <div id="mode-toggle">
-        <button id="toggle-mode">Modo Dúo</button>
-    </div>
 
     <div id="main-container">
-        <!-- Visor 360° 1 -->
-        <a-scene id="scene1" class="scene">
-            <a-camera id="camera1"
-                position="0 1.6 0"
-                touch-controls
-                look-controls>
-            </a-camera>
+        <a-scene id="scene1">
+            <!-- Cámara con controles táctiles -->
+            <a-camera position="0 1.6 0" touch-controls look-controls></a-camera>
+
+            <!-- Imagen 360° -->
             <a-sky id="imagen360-1" src="images/image1.JPG"></a-sky>
         </a-scene>
 
-        <!-- Visor 360° 2 -->
-        <a-scene id="scene2" class="scene">
-            <a-camera id="camera2"
-                position="0 1.6 0"
-                touch-controls
-                look-controls>
-            </a-camera>
+        <a-scene id="scene2" style="display: none;">
+            <!-- Cámara con controles táctiles -->
+            <a-camera position="0 1.6 0" touch-controls look-controls></a-camera>
+
+            <!-- Imagen 360° -->
             <a-sky id="imagen360-2" src="images/image1.JPG"></a-sky>
         </a-scene>
     </div>
 
     <div id="controls">
-        <label for="image-select">Seleccionar Imagen:</label>
-        <select id="image-select">
-            <!-- Las opciones se llenarán dinámicamente -->
+        <select id="image-selector">
+            <option value="image1.JPG">Imagen 1</option>
+            <option value="image2.JPG">Imagen 2</option>
+            <option value="image3.JPG">Imagen 3</option>
         </select>
+        <button id="toggle-mode">Modo Dúo</button>
     </div>
 
     <script>
-        // Código JavaScript para manejar múltiplas imagens
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = [
-                'image1.JPG',
-                'image2.JPG',
-                'image3.JPG'
-            ];
-
-            const selectElement = document.getElementById('image-select');
-
-            images.forEach(image => {
-                const option = document.createElement('option');
-                option.value = image;
-                option.textContent = image;
-                selectElement.appendChild(option);
-            });
-
-            selectElement.addEventListener('change', function() {
-                const selectedImage = selectElement.value;
-                document.querySelector('#imagen360-1').setAttribute('src', `images/${selectedImage}`);
-                document.querySelector('#imagen360-2').setAttribute('src', `images/${selectedImage}`);
-            });
-
-            // Configuração padrão
-            selectElement.value = 'image1.JPG';
+        document.getElementById('image-selector').addEventListener('change', function() {
+            const selectedImage = this.value;
+            document.getElementById('imagen360-1').setAttribute('src', `images/${selectedImage}`);
+            document.getElementById('imagen360-2').setAttribute('src', `images/${selectedImage}`);
         });
 
-        // Alternar entre visualização única e dupla
+        // Alternar entre visualización única y dúo
         document.getElementById('toggle-mode').addEventListener('click', function() {
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
@@ -128,19 +89,19 @@
 
             if (isDualMode) {
                 // Modo Único
-                mainContainer.style.flexDirection = 'row';
-                scene1.style.width = '100%';
                 scene2.style.display = 'none';
+                scene1.style.flex = '1';
                 this.textContent = 'Modo Dúo';
             } else {
                 // Modo Dúo
                 mainContainer.style.flexDirection = 'row';
-                scene1.style.width = '50%';
-                scene2.style.width = '50%';
+                scene1.style.flex = '1';
+                scene2.style.flex = '1';
                 scene2.style.display = 'block';
                 this.textContent = 'Modo Único';
             }
         });
     </script>
+
 </body>
 </html>
