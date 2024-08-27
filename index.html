@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visores 360°</title>
+    <title>Visor 360° con Modo Dúo</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -16,27 +18,67 @@
             display: flex;
             width: 100%;
             height: 100%;
-            flex-direction: row; /* Asegura que los visores estén en fila, uno al lado del otro */
+            flex-direction: row; /* Asegura que los visores estén en fila */
         }
         a-scene {
             width: 50%; /* Cada visor ocupará el 50% del ancho */
             height: 100%; /* Y el 100% de la altura */
             display: block; /* Asegura que ambos visores sean visibles */
+            margin: 0;
+            padding: 0;
+        }
+        #toggle-mode {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
+
     <div id="main-container">
-        <a-scene id="scene1"></a-scene>
-        <a-scene id="scene2"></a-scene>
+        <a-scene id="scene1">
+            <a-camera id="camera1" position="0 1.6 0"></a-camera>
+            <a-sky id="imagen360-1" src="images/image1.JPG"></a-sky>
+        </a-scene>
+
+        <a-scene id="scene2" style="display: none;">
+            <a-camera id="camera2" position="0 1.6 0"></a-camera>
+            <a-sky id="imagen360-2" src="images/image2.JPG"></a-sky>
+        </a-scene>
     </div>
-    <button id="toggle-mode" style="position: absolute; top: 10px; right: 10px;">Modo Único</button>
+
+    <div id="menu">
+        <select id="image-selector">
+            <option value="image1.JPG">Imagen 1</option>
+            <option value="image2.JPG">Imagen 2</option>
+            <option value="image3.JPG">Imagen 3</option>
+        </select>
+    </div>
+
+    <div id="toggle-mode">Modo Dúo</div>
 
     <script>
+        // Alternar entre visualización única y doble
         document.getElementById('toggle-mode').addEventListener('click', function() {
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
-            const mainContainer = document.getElementById('main-container');
             const isDualMode = scene2.style.display === 'block';
 
             if (isDualMode) {
@@ -52,6 +94,14 @@
                 this.textContent = 'Modo Único';
             }
         });
+
+        // Cambiar la imagen 360° según la selección en el menú desplegable
+        document.getElementById('image-selector').addEventListener('change', function() {
+            const imageSrc = this.value;
+            document.querySelector('#imagen360-1').setAttribute('src', `images/${imageSrc}`);
+            document.querySelector('#imagen360-2').setAttribute('src', `images/${imageSrc}`);
+        });
     </script>
+
 </body>
 </html>
