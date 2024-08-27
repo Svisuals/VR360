@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo Dúo</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
+    <title>Visores 360° con Panolens.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/panolens@0.10.0/build/panolens.min.js"></script>
     <style>
         body, html {
             margin: 0;
@@ -18,12 +17,10 @@
             display: flex;
             width: 100%;
             height: 100%;
-            flex-direction: row; /* Asegura que los visores estén en fila */
         }
-        a-scene {
+        .panorama {
             width: 50%; /* Cada visor ocupará el 50% del ancho */
             height: 100%; /* Y el 100% de la altura */
-            display: block; /* Asegura que ambos visores sean visibles */
         }
         #toggle-mode {
             position: fixed;
@@ -36,68 +33,49 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #menu {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
 
     <div id="main-container">
-        <a-scene id="scene1">
-            <a-camera id="camera1" position="0 1.6 0"></a-camera>
-            <a-sky id="imagen360-1" src="images/image1.JPG"></a-sky>
-        </a-scene>
-
-        <a-scene id="scene2" style="display: none;">
-            <a-camera id="camera2" position="0 1.6 0"></a-camera>
-            <a-sky id="imagen360-2" src="images/image2.JPG"></a-sky>
-        </a-scene>
-    </div>
-
-    <div id="menu">
-        <select id="image-selector">
-            <option value="image1.JPG">Imagen 1</option>
-            <option value="image2.JPG">Imagen 2</option>
-            <option value="image3.JPG">Imagen 3</option>
-        </select>
+        <div class="panorama" id="panorama1"></div>
+        <div class="panorama" id="panorama2" style="display: none;"></div>
     </div>
 
     <div id="toggle-mode">Modo Único</div>
 
     <script>
+        // Inicializar panoramas con Panolens.js
+        const viewer1 = new PANOLENS.Viewer({
+            container: document.getElementById('panorama1')
+        });
+        const viewer2 = new PANOLENS.Viewer({
+            container: document.getElementById('panorama2')
+        });
+
+        // Cargar panoramas
+        const panorama1 = new PANOLENS.ImagePanorama('images/image1.JPG');
+        const panorama2 = new PANOLENS.ImagePanorama('images/image2.JPG');
+
+        viewer1.add(panorama1);
+        viewer2.add(panorama2);
+
         // Alternar entre visualización única y doble
         document.getElementById('toggle-mode').addEventListener('click', function() {
-            const scene1 = document.getElementById('scene1');
-            const scene2 = document.getElementById('scene2');
-            const isDualMode = scene2.style.display === 'block';
+            const isDualMode = document.getElementById('panorama2').style.display === 'block';
 
             if (isDualMode) {
                 // Modo Único
-                scene1.style.width = '100%';
-                scene2.style.display = 'none';
+                document.getElementById('panorama1').style.width = '100%';
+                document.getElementById('panorama2').style.display = 'none';
                 this.textContent = 'Modo Dúo';
             } else {
                 // Modo Dúo
-                scene1.style.width = '50%';
-                scene2.style.width = '50%';
-                scene2.style.display = 'block';
+                document.getElementById('panorama1').style.width = '50%';
+                document.getElementById('panorama2').style.width = '50%';
+                document.getElementById('panorama2').style.display = 'block';
                 this.textContent = 'Modo Único';
             }
-        });
-
-        // Cambiar la imagen 360° según la selección en el menú desplegable
-        document.getElementById('image-selector').addEventListener('change', function() {
-            const imageSrc = this.value;
-            document.querySelector('#imagen360-1').setAttribute('src', `images/${imageSrc}`);
-            document.querySelector('#imagen360-2').setAttribute('src', `images/${imageSrc}`);
         });
     </script>
 
