@@ -29,7 +29,7 @@
             padding: 10px;
             border-radius: 5px;
         }
-        button {
+        select {
             margin: 5px;
             padding: 10px;
             color: white;
@@ -37,9 +37,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-        }
-        button.active {
-            background-color: #0056b3;
         }
     </style>
 </head>
@@ -62,7 +59,10 @@
     </a-scene>
 
     <div id="controls">
-        <div id="image-buttons"></div>
+        <label for="image-select">Seleccionar Imagen:</label>
+        <select id="image-select">
+            <!-- Las opciones se llenarán dinámicamente -->
+        </select>
     </div>
 
     <script>
@@ -106,27 +106,22 @@
                 'image3.JPG'
             ];
 
-            const controlsDiv = document.getElementById('image-buttons');
+            const selectElement = document.getElementById('image-select');
 
             images.forEach(image => {
-                const button = document.createElement('button');
-                button.textContent = image;
-                button.setAttribute('aria-label', `Ver imagen ${image}`);
-                button.onclick = () => cambiarImagen360(image);
-                controlsDiv.appendChild(button);
+                const option = document.createElement('option');
+                option.value = image;
+                option.textContent = image;
+                selectElement.appendChild(option);
             });
 
-            function cambiarImagen360(nombreImagen) {
-                document.querySelector('#imagen360').setAttribute('src', `images/${nombreImagen}`);
-                
-                // Update active button
-                document.querySelectorAll('#image-buttons button').forEach(btn => btn.classList.remove('active'));
-                const activeButton = Array.from(document.querySelectorAll('#image-buttons button'))
-                                           .find(btn => btn.textContent === nombreImagen);
-                if (activeButton) {
-                    activeButton.classList.add('active');
-                }
-            }
+            selectElement.addEventListener('change', function() {
+                const selectedImage = selectElement.value;
+                document.querySelector('#imagen360').setAttribute('src', `images/${selectedImage}`);
+            });
+
+            // Optional: Set default selection
+            selectElement.value = 'image1.JPG';
         });
     </script>
 
