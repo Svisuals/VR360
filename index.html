@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visores 360° Divididos</title>
+    <title>Visores 360° Divididos Verticalmente</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
@@ -15,14 +15,18 @@
             height: 100%;
             overflow: hidden;
         }
-        a-scene {
+        #container {
+            display: flex;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: row;
+        }
+        a-scene {
+            width: 50%;
+            height: 100%;
+            position: relative;
         }
         a-sky {
-            width: 50%;
+            width: 100%;
             height: 100%;
         }
         #controls {
@@ -48,20 +52,31 @@
 </head>
 <body>
 
-    <a-scene>
-        <!-- Cámara con controles táctiles -->
-        <a-camera id="camera"
-            position="0 1.6 0"
-            touch-controls
-            look-controls>
-        </a-camera>
+    <div id="container">
+        <a-scene>
+            <!-- Cámara con controles táctiles -->
+            <a-camera id="camera"
+                position="0 1.6 0"
+                touch-controls
+                look-controls>
+            </a-camera>
 
-        <!-- Imagen 360° Izquierda -->
-        <a-sky id="imagen360-izquierda" src="images/image1.JPG"></a-sky>
+            <!-- Imagen 360° Izquierda -->
+            <a-sky id="imagen360-izquierda" src="images/image1.JPG"></a-sky>
+        </a-scene>
 
-        <!-- Imagen 360° Derecha -->
-        <a-sky id="imagen360-derecha" src="images/image2.JPG"></a-sky>
-    </a-scene>
+        <a-scene>
+            <!-- Cámara con controles táctiles -->
+            <a-camera id="camera"
+                position="0 1.6 0"
+                touch-controls
+                look-controls>
+            </a-camera>
+
+            <!-- Imagen 360° Derecha -->
+            <a-sky id="imagen360-derecha" src="images/image2.JPG"></a-sky>
+        </a-scene>
+    </div>
 
     <div id="controls">
         <label for="image-select-izquierda">Seleccionar Imagen Izquierda:</label>
@@ -105,8 +120,10 @@
             }
         });
 
-        // Añadir el componente a la cámara
-        document.querySelector('a-camera').setAttribute('zoom-controls', '');
+        // Añadir el componente a las cámaras
+        document.querySelectorAll('a-camera').forEach(camera => {
+            camera.setAttribute('zoom-controls', '');
+        });
 
         // JavaScript para manejar múltiples imágenes
         document.addEventListener('DOMContentLoaded', function() {
