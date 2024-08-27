@@ -18,15 +18,11 @@
             display: flex;
             width: 100%;
             height: 100%;
+            flex-direction: row; /* Asegura que los visores estén en fila */
         }
         a-scene {
-            width: 100%;
-            height: 100%;
-        }
-        #scene2 {
-            display: none;
-            width: 50%;
-            height: 100%;
+            width: 50%; /* Cada visor ocupará el 50% del ancho */
+            height: 100%; /* Y el 100% de la altura */
         }
         #toggle-mode {
             position: fixed;
@@ -73,23 +69,25 @@
         </select>
     </div>
 
-    <div id="toggle-mode">Modo Dúo</div>
+    <div id="toggle-mode">Modo Único</div>
 
     <script>
         // Alternar entre visualización única y doble
         document.getElementById('toggle-mode').addEventListener('click', function() {
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
-            const isDualMode = scene2.style.display === 'block';
+            const isDualMode = scene2.style.width === '50%';
 
             if (isDualMode) {
                 // Modo Único
                 scene1.style.width = '100%';
+                scene2.style.width = '0%';
                 scene2.style.display = 'none';
                 this.textContent = 'Modo Dúo';
             } else {
                 // Modo Dúo
                 scene1.style.width = '50%';
+                scene2.style.width = '50%';
                 scene2.style.display = 'block';
                 this.textContent = 'Modo Único';
             }
