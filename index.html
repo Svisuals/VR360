@@ -23,7 +23,12 @@
             width: 100%;
             height: 100%;
         }
-        #controls {
+        #scene2 {
+            display: none;
+            width: 50%;
+            height: 100%;
+        }
+        #toggle-mode {
             position: fixed;
             top: 10px;
             right: 10px;
@@ -32,15 +37,17 @@
             color: white;
             padding: 10px;
             border-radius: 5px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
+        }
+        #menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -48,58 +55,51 @@
 
     <div id="main-container">
         <a-scene id="scene1">
-            <!-- Cámara con controles táctiles -->
-            <a-camera position="0 1.6 0" touch-controls look-controls></a-camera>
-
-            <!-- Imagen 360° -->
+            <a-camera id="camera1" position="0 1.6 0"></a-camera>
             <a-sky id="imagen360-1" src="images/image1.JPG"></a-sky>
         </a-scene>
 
-        <a-scene id="scene2" style="display: none;">
-            <!-- Cámara con controles táctiles -->
-            <a-camera position="0 1.6 0" touch-controls look-controls></a-camera>
-
-            <!-- Imagen 360° -->
-            <a-sky id="imagen360-2" src="images/image1.JPG"></a-sky>
+        <a-scene id="scene2">
+            <a-camera id="camera2" position="0 1.6 0"></a-camera>
+            <a-sky id="imagen360-2" src="images/image2.JPG"></a-sky>
         </a-scene>
     </div>
 
-    <div id="controls">
+    <div id="menu">
         <select id="image-selector">
             <option value="image1.JPG">Imagen 1</option>
             <option value="image2.JPG">Imagen 2</option>
             <option value="image3.JPG">Imagen 3</option>
         </select>
-        <button id="toggle-mode">Modo Dúo</button>
     </div>
 
-    <script>
-        document.getElementById('image-selector').addEventListener('change', function() {
-            const selectedImage = this.value;
-            document.getElementById('imagen360-1').setAttribute('src', `images/${selectedImage}`);
-            document.getElementById('imagen360-2').setAttribute('src', `images/${selectedImage}`);
-        });
+    <div id="toggle-mode">Modo Dúo</div>
 
-        // Alternar entre visualización única y dúo
+    <script>
+        // Alternar entre visualización única y doble
         document.getElementById('toggle-mode').addEventListener('click', function() {
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
-            const mainContainer = document.getElementById('main-container');
             const isDualMode = scene2.style.display === 'block';
 
             if (isDualMode) {
                 // Modo Único
+                scene1.style.width = '100%';
                 scene2.style.display = 'none';
-                scene1.style.flex = '1';
                 this.textContent = 'Modo Dúo';
             } else {
                 // Modo Dúo
-                mainContainer.style.flexDirection = 'row';
-                scene1.style.flex = '1';
-                scene2.style.flex = '1';
+                scene1.style.width = '50%';
                 scene2.style.display = 'block';
                 this.textContent = 'Modo Único';
             }
+        });
+
+        // Cambiar la imagen 360° según la selección en el menú desplegable
+        document.getElementById('image-selector').addEventListener('change', function() {
+            const imageSrc = this.value;
+            document.querySelector('#imagen360-1').setAttribute('src', `images/${imageSrc}`);
+            document.querySelector('#imagen360-2').setAttribute('src', `images/${imageSrc}`);
         });
     </script>
 
