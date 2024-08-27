@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor 360° con Modo VR y Zoom</title>
+    <title>Visores 360° Divididos</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.3/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
@@ -17,6 +17,12 @@
         }
         a-scene {
             width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+        a-sky {
+            width: 50%;
             height: 100%;
         }
         #controls {
@@ -50,17 +56,21 @@
             look-controls>
         </a-camera>
 
-        <!-- Imagen 360° -->
-        <a-sky id="imagen360" src="images/image1.JPG"></a-sky>
+        <!-- Imagen 360° Izquierda -->
+        <a-sky id="imagen360-izquierda" src="images/image1.JPG"></a-sky>
 
-        <a-assets>
-            <!-- Las imágenes se cargarán dinámicamente -->
-        </a-assets>
+        <!-- Imagen 360° Derecha -->
+        <a-sky id="imagen360-derecha" src="images/image2.JPG"></a-sky>
     </a-scene>
 
     <div id="controls">
-        <label for="image-select">Seleccionar Imagen:</label>
-        <select id="image-select">
+        <label for="image-select-izquierda">Seleccionar Imagen Izquierda:</label>
+        <select id="image-select-izquierda">
+            <!-- Las opciones se llenarán dinámicamente -->
+        </select>
+        <br>
+        <label for="image-select-derecha">Seleccionar Imagen Derecha:</label>
+        <select id="image-select-derecha">
             <!-- Las opciones se llenarán dinámicamente -->
         </select>
     </div>
@@ -106,22 +116,34 @@
                 'image3.JPG'
             ];
 
-            const selectElement = document.getElementById('image-select');
+            const selectIzquierda = document.getElementById('image-select-izquierda');
+            const selectDerecha = document.getElementById('image-select-derecha');
 
             images.forEach(image => {
-                const option = document.createElement('option');
-                option.value = image;
-                option.textContent = image;
-                selectElement.appendChild(option);
+                const optionIzquierda = document.createElement('option');
+                optionIzquierda.value = image;
+                optionIzquierda.textContent = image;
+                selectIzquierda.appendChild(optionIzquierda);
+
+                const optionDerecha = document.createElement('option');
+                optionDerecha.value = image;
+                optionDerecha.textContent = image;
+                selectDerecha.appendChild(optionDerecha);
             });
 
-            selectElement.addEventListener('change', function() {
-                const selectedImage = selectElement.value;
-                document.querySelector('#imagen360').setAttribute('src', `images/${selectedImage}`);
+            selectIzquierda.addEventListener('change', function() {
+                const selectedImage = selectIzquierda.value;
+                document.querySelector('#imagen360-izquierda').setAttribute('src', `images/${selectedImage}`);
+            });
+
+            selectDerecha.addEventListener('change', function() {
+                const selectedImage = selectDerecha.value;
+                document.querySelector('#imagen360-derecha').setAttribute('src', `images/${selectedImage}`);
             });
 
             // Optional: Set default selection
-            selectElement.value = 'image1.JPG';
+            selectIzquierda.value = 'image1.JPG';
+            selectDerecha.value = 'image2.JPG';
         });
     </script>
 
