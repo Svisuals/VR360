@@ -25,7 +25,7 @@
             width: 100%;
             height: 100%;
             flex: 1;
-            transition: width 0.3s ease; /* Smooth transition for resizing */
+            transition: width 0.3s ease;
         }
         #scene2 {
             display: none;
@@ -46,16 +46,7 @@
             right: 10px;
             left: auto;
         }
-        select {
-            margin: 5px;
-            padding: 10px;
-            color: white;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button {
+        select, button {
             margin: 5px;
             padding: 10px;
             color: white;
@@ -101,39 +92,7 @@
     </div>
 
     <script>
-        AFRAME.registerComponent('zoom-controls', {
-            schema: {
-                min: {type: 'number', default: 30},
-                max: {type: 'number', default: 90}
-            },
-            init: function () {
-                this.cameraEl = this.el.sceneEl.camera.el;
-                this.el.sceneEl.addEventListener('wheel', this.onWheel.bind(this));
-                this.setupPinchZoom();
-            },
-            onWheel: function (event) {
-                const cameraComponent = this.cameraEl.getAttribute('camera');
-                const newFov = Math.max(this.data.min, Math.min(this.data.max, cameraComponent.fov - event.deltaY * 0.05));
-                this.cameraEl.setAttribute('camera', 'fov', newFov);
-            },
-            setupPinchZoom: function () {
-                const canvas = this.el.sceneEl.renderer.domElement;
-                const hammer = new Hammer.Manager(canvas);
-                hammer.add(new Hammer.Pinch());
-
-                hammer.on('pinch', (event) => {
-                    const cameraComponent = this.cameraEl.getAttribute('camera');
-                    let newFov = cameraComponent.fov / event.scale;
-                    newFov = Math.max(this.data.min, Math.min(this.data.max, newFov));
-                    this.cameraEl.setAttribute('camera', 'fov', newFov);
-                });
-            }
-        });
-
-        // Añadir el componente a las cámaras
-        document.querySelectorAll('a-camera').forEach(camera => camera.setAttribute('zoom-controls', ''));
-
-        // JavaScript para manejar múltiples imágenes
+        // Código JavaScript para manejar múltiplas imagens
         document.addEventListener('DOMContentLoaded', function() {
             const images = [
                 'image1.JPG',
@@ -156,25 +115,25 @@
                 document.querySelector('#imagen360-2').setAttribute('src', `images/${selectedImage}`);
             });
 
-            // Optional: Set default selection
+            // Configuração padrão
             selectElement.value = 'image1.JPG';
         });
 
-        // Toggle mode between single and dual view
+        // Alternar entre visualização única e dupla
         document.getElementById('toggle-mode').addEventListener('click', function() {
-            const mainContainer = document.getElementById('main-container');
             const scene1 = document.getElementById('scene1');
             const scene2 = document.getElementById('scene2');
+            const mainContainer = document.getElementById('main-container');
             const isDualMode = scene2.style.display === 'block';
 
             if (isDualMode) {
-                // Switch to single view
+                // Modo Único
                 mainContainer.style.flexDirection = 'row';
                 scene1.style.width = '100%';
                 scene2.style.display = 'none';
                 this.textContent = 'Modo Dúo';
             } else {
-                // Switch to dual view
+                // Modo Dúo
                 mainContainer.style.flexDirection = 'row';
                 scene1.style.width = '50%';
                 scene2.style.width = '50%';
